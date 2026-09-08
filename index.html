@@ -1,38 +1,216 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
-    <title id="titleWeb"></title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/mystyle.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <title>Happy Birthday My Love 🎂💖</title>
+    <!-- Favicon -->
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎂</text></svg>">
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body style="width: 100%; height: 100%;">
-    <div class="box">
-        <ul class="minbox">
-            <li id="min1"></li>
-            <li id="min2"></li>
-            <li id="min3"></li>
-            <li id="min4"></li>
-            <li id="min5"></li>
-            <li id="min6"></li>
-        </ul>
-        <ol class="maxbox">
-            <li id="max1"></li>
-            <li id="max2"></li>
-            <li id="max3"></li>
-            <li id="max4"></li>
-            <li id="max5"></li>
-            <li id="max6"></li>
-        </ol>
+<body>
+    <!-- Canvas Hiệu ứng Nền & Pháo hoa -->
+    <canvas id="bg-canvas"></canvas>
+    <canvas id="fireworks-canvas"></canvas>
+
+    <!-- Nhạc nền bí mật -->
+    <audio id="bg-audio" loop preload="auto">
+        <source src="https://assets.mixkit.co/music/preview/mixkit-happy-birthday-to-you-443.mp3" type="audio/mp3">
+    </audio>
+
+    <!-- Nút điều khiển nhạc nổi -->
+    <div id="floating-music-btn" class="floating-music" title="Bật/Tắt nhạc">
+        <div id="disk-icon" class="disk-icon">🎵</div>
+        <span class="music-label">Birthday Melody</span>
     </div>
-    <audio id="player" autoplay loop>
-		<source src="http://vnso-zn-23-tf-mp3-320s1-zmp3.zadn.vn/4007f67ceb3b02655b2a/3100207136674622347?authen=exp=1608429489~acl=/4007f67ceb3b02655b2a/*~hmac=eebe8238a57f13119ec081abe77cf8a2&fs=MTYwODI2MTM1OTMyNXx3ZWJWNQ" type="audio/mp3">
-	</audio>
-    <script src="./config.js"></script>
-    <script src="./js/main.js"></script>
+
+    <main class="app-container">
+        <!-- =================================================================
+             1. MÀN HÌNH KHÓA: NHẬP MẬT KHẨU (SCREEN LOCK)
+             ================================================================= -->
+        <section id="screen-lock" class="screen active">
+            <div id="lock-card" class="glass-card">
+                <div class="lock-icon-wrapper">
+                    <span class="heart-lock-anim">🎁</span>
+                </div>
+                <h1 class="romantic-title">Món Quà Sinh Nhật Nhỏ</h1>
+                <p class="script-sub">Dành riêng cho ngày sinh nhật của em ✨</p>
+                <p style="color: var(--text-muted); font-size: 0.95rem;">
+                    Nhập <strong>con số bí mật (6 chữ số)</strong> để mở nhé:
+                </p>
+
+                <div class="password-input-group">
+                    <input type="tel" id="password-input" class="password-input"
+                        placeholder="Nhập mã số..." maxlength="8" inputmode="numeric"
+                        autocomplete="off">
+                </div>
+
+                <button id="btn-unlock" class="btn-romantic">
+                    <span>Mở Hộp Quà</span> ✨
+                </button>
+            </div>
+        </section>
+
+        <!-- =================================================================
+             2. MÀN HÌNH: TRÌNH CHIẾU ALBUM ẢNH (SCREEN SLIDESHOW)
+             ================================================================= -->
+        <section id="screen-slideshow" class="screen">
+            <div class="glass-card">
+                <h2 class="romantic-title">Những Khoảnh Khắc Đẹp 🌸</h2>
+                <p class="script-sub">Lưu giữ những phút giây thật tự nhiên và bình yên</p>
+
+                <div class="slideshow-container">
+                    <div class="polaroid-card">
+                        <div class="pin-clip">📌</div>
+                        <div class="polaroid-img-box">
+                            <img id="polaroid-img" class="polaroid-img" src="images/max1.jpg" alt="Memory Photo">
+                        </div>
+                        <div id="polaroid-caption" class="polaroid-caption">
+                            Một khoảnh khắc thật tự nhiên và đáng nhớ ✨
+                        </div>
+                    </div>
+
+                    <div class="slideshow-controls">
+                        <button id="prev-slide" class="btn-romantic btn-circle" title="Ảnh trước">❮</button>
+                        <div id="slide-dots" class="slide-dots"></div>
+                        <button id="next-slide" class="btn-romantic btn-circle" title="Ảnh tiếp theo">❯</button>
+                    </div>
+
+                    <button id="btn-to-games" class="btn-romantic">
+                        <span>Khám Phá Phần Tiếp Theo</span> 🎁
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- =================================================================
+             3. MÀN HÌNH: THỬ THÁCH MINIGAMES (SCREEN GAMES)
+             ================================================================= -->
+        <section id="screen-games" class="screen">
+            <div class="glass-card">
+                <h2 class="romantic-title">Thử Thách Nhỏ Mừng Sinh Nhật 🎁</h2>
+                <p class="script-sub">Cùng hoàn thành 3 thử thách nhỏ để xem lời chúc nhé!</p>
+
+                <!-- Thanh trạng thái 3 phong ấn -->
+                <div class="quest-status-bar">
+                    <div id="seal-1" class="seal-item">
+                        <span class="seal-icon">🔒</span> 1: Hứng Quà
+                    </div>
+                    <div id="seal-2" class="seal-item">
+                        <span class="seal-icon">🔒</span> 2: Hoa Đẹp Nhất
+                    </div>
+                    <div id="seal-3" class="seal-item">
+                        <span class="seal-icon">🔒</span> 3: Thổi Nến
+                    </div>
+                </div>
+
+                <!-- Stage 1: Game Hứng quà Canvas Catcher -->
+                <div id="stage-1" class="game-stage-box">
+                    <div class="score-badge" id="score-display">🎁 Điểm: 0/10</div>
+                    <p style="margin-bottom: 8px; color: var(--accent-gold); font-weight: 600; font-size: 0.95rem;">
+                        Thử thách 1: Di chuột hoặc vuốt ngón tay để hứng đủ 10 món quà nhé! 🎁
+                    </p>
+                    <canvas id="catcher-canvas" width="480" height="280"></canvas>
+                </div>
+
+                <!-- Stage 2: Game Chọn Bông Hoa Đẹp Nhất -->
+                <div id="stage-2" class="game-stage-box" style="display: none;">
+                    <div class="score-badge" id="flower-progress-badge">🌸 Lượt chọn: 0/3</div>
+                    <p style="color: var(--rose-gold); font-weight: 700; font-size: 1.15rem; margin-bottom: 4px; margin-top: 6px;"
+                        id="flower-game-title">
+                        Thử Thách 2: Tìm Bông Hoa Đẹp Nhất 🌸
+                    </p>
+                    <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 14px;"
+                        id="flower-game-subtitle">
+                        Trong các loài hoa dưới đây, theo em bông hoa nào là đẹp nhất?
+                    </p>
+
+                    <!-- Hộp thông báo phản hồi khi chọn sai -->
+                    <div id="flower-feedback-box" class="flower-feedback-box" style="display: none;"></div>
+
+                    <!-- Lưới các thẻ hoa để chọn -->
+                    <div id="flower-cards-grid" class="flower-cards-grid"></div>
+
+                    <!-- Màn Kết luận Bông Hoa Đẹp Nhất (Sau 3 lần chọn) -->
+                    <div id="flower-conclusion-card" class="flower-conclusion-card" style="display: none;">
+                        <div class="flower-conclusion-sparkle">✨🌸🌿🌸✨</div>
+                        <div class="lover-flower-frame">
+                            <span class="crown-icon">🌸</span>
+                            <img id="conclusion-lover-img" class="lover-flower-img" src="images/max1.jpg"
+                                alt="Bông hoa đẹp nhất">
+                            <div class="lover-flower-halo"></div>
+                        </div>
+                        <div class="flower-winner-badge">✨ ĐIỀU ĐẶC BIỆT NHẤT ✨</div>
+                        <h3 id="conclusion-title" class="conclusion-title">VỚI ANH, EM MỚI LÀ BÔNG HOA ĐẸP NHẤT 🌸</h3>
+                        <p id="conclusion-subtitle" class="conclusion-subtitle">Mỗi người một vẻ, nhưng em luôn là điều
+                            đặc biệt nhất ✨</p>
+                        <div id="conclusion-message" class="conclusion-message"></div>
+                        <button id="btn-to-stage-3" class="btn-romantic" style="margin-top: 18px;">
+                            <span>Tiếp Tục & Thổi Nến</span> 🎂
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stage 3: Thổi nến bánh kem -->
+                <div id="stage-3" class="game-stage-box" style="display: none;">
+                    <p style="color: var(--accent-gold); font-weight: 600; margin-bottom: 10px;">
+                        Thử thách cuối: Nhắm mắt ước một điều ước cho tuổi mới, sau đó click vào ngọn nến để thổi tắt
+                        nhé! 🕯️
+                    </p>
+                    <div class="cake-wrapper">
+                        <div class="cake">
+                            <div id="cake-candle" class="candle">
+                                <div id="candle-flame" class="flame"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="blow-hint">👉 Chạm vào ngọn nến để thổi tắt 🎂</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =================================================================
+             4. MÀN HÌNH: BỨC THƯ BÍ MẬT (SCREEN SECRET LETTER)
+             ================================================================= -->
+        <section id="screen-letter" class="screen">
+            <div class="envelope-box">
+                <div class="letter-header">
+                    <div class="letter-title">💌 Happy Birthday</div>
+                    <div class="letter-stamp">🎂</div>
+                </div>
+
+                <div id="letter-greeting" class="letter-greeting">Gửi em,</div>
+
+                <div id="letter-body" class="letter-body">
+                    <!-- Nội dung thư sẽ được gõ máy chữ tự động qua JS -->
+                </div>
+
+                <div id="letter-signature" class="letter-signature">
+                    Gửi tặng em 🌿
+                </div>
+
+                <div style="margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                    <button id="btn-send-love" class="btn-romantic btn-kiss-giant">
+                        <span>Gửi Lời Cảm Ơn / Thả Tim</span> 💖
+                    </button>
+                    <div id="kiss-counter-badge" class="kiss-counter-badge" style="display: none;">
+                        💖 Đã gửi <span id="kiss-count">0</span> trái tim yêu thương!
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="js/music.js"></script>
+    <script src="js/hearts.js"></script>
+    <script src="js/confetti.js"></script>
+    <script src="js/main.js"></script>
 </body>
 
 </html>
