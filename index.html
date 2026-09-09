@@ -4,201 +4,325 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Happy Birthday My Love 🎂💖</title>
+    <title>Mixtape 2006 • Happy Birthday Bìm 🎞️</title>
     <!-- Favicon -->
     <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎂</text></svg>">
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎞️</text></svg>">
+    <!-- Google Fonts: Editorial Serif, Vintage Typewriter, Handwritten & Clean Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
     <!-- CSS Stylesheet -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
-    <!-- Canvas Hiệu ứng Nền & Pháo hoa -->
+    <!-- Canvas Hiệu ứng Nền & Pháo hoa Hoài Niệm -->
     <canvas id="bg-canvas"></canvas>
     <canvas id="fireworks-canvas"></canvas>
 
-    <!-- Nhạc nền bí mật -->
-    <audio id="bg-audio" loop preload="auto">
-        <source src="https://assets.mixkit.co/music/preview/mixkit-happy-birthday-to-you-443.mp3" type="audio/mp3">
-    </audio>
+    <!-- Hiệu ứng Đèn Flash Máy Ảnh -->
+    <div id="camera-flash-overlay"></div>
 
-    <!-- Nút điều khiển nhạc nổi -->
-    <div id="floating-music-btn" class="floating-music" title="Bật/Tắt nhạc">
-        <div id="disk-icon" class="disk-icon">🎵</div>
-        <span class="music-label">Birthday Melody</span>
+    <!-- Lớp phủ hạt phim Analog Grain & Vignette -->
+    <div class="film-grain-overlay"></div>
+    <div class="vintage-vignette"></div>
+
+    <!-- Nhạc nền bí mật -->
+    <audio id="bg-audio" loop preload="auto"></audio>
+
+    <!-- Widget Cassette Mini Cố Định Góc Màn Hình -->
+    <div id="floating-music-btn" class="floating-cassette" title="Bật/Tắt cuộn băng kỷ niệm">
+        <div class="mini-cassette-reels">
+            <div id="mini-reel-left" class="mini-reel"></div>
+            <div id="mini-reel-right" class="mini-reel"></div>
+        </div>
+        <div class="cassette-info">
+            <span class="cassette-title">MIXTAPE 2006</span>
+            <span id="cassette-status" class="cassette-track">Side A • Ready</span>
+        </div>
     </div>
+
+    <!-- Ngôi sao bí mật kích hoạt trò chơi ở góc dưới bên trái màn hình -->
+    <button id="secret-star-btn" class="secret-star-trigger" title="Điều bí mật...">
+        <span class="star-icon">✦</span>
+    </button>
 
     <main class="app-container">
         <!-- =================================================================
-             1. MÀN HÌNH KHÓA: NHẬP MẬT KHẨU (SCREEN LOCK)
+             1. MÀN HÌNH 1: MÁY PHÁT BĂNG CASSETTE & MÃ MỞ KHÓA (SCREEN LOCK)
              ================================================================= -->
         <section id="screen-lock" class="screen active">
-            <div id="lock-card" class="glass-card">
-                <div class="lock-icon-wrapper">
-                    <span class="heart-lock-anim">🎁</span>
-                </div>
-                <h1 class="romantic-title">Món Quà Sinh Nhật Nhỏ</h1>
-                <p class="script-sub">Dành riêng cho ngày sinh nhật của em ✨</p>
-                <p style="color: var(--text-muted); font-size: 0.95rem;">
-                    Nhập <strong>con số bí mật (6 chữ số)</strong> để mở nhé:
-                </p>
-
-                <div class="password-input-group">
-                    <input type="tel" id="password-input" class="password-input"
-                        placeholder="Nhập mã số..." maxlength="8" inputmode="numeric"
-                        autocomplete="off">
+            <div id="lock-card" class="vintage-panel cassette-deck">
+                <!-- Header máy băng -->
+                <div class="deck-header">
+                    <div class="deck-brand">ANALOG STEREO DECK • MODEL 2006</div>
+                    <div class="deck-counter">
+                        <span class="counter-label">TAPE COUNTER</span>
+                        <div class="counter-display" id="tape-counter-num">0 0 0</div>
+                    </div>
                 </div>
 
-                <button id="btn-unlock" class="btn-romantic">
-                    <span>Mở Hộp Quà</span> ✨
+                <!-- Thân băng Cassette chính -->
+                <div class="cassette-body">
+                    <div class="cassette-label-sticker">
+                        <div class="label-top-row">
+                            <span class="label-badge">PREMIUM CASSETTE 60 MIN</span>
+                            <span class="label-side">SIDE A</span>
+                        </div>
+                        <h1 class="cassette-main-title">Mixtape For Bìm</h1>
+                        <p class="cassette-sub-text">Special Edition • Memories Collection</p>
+                    </div>
+
+                    <div class="cassette-window">
+                        <div id="main-reel-left" class="cassette-reel">
+                            <div class="spoke"></div>
+                            <div class="spoke"></div>
+                            <div class="spoke"></div>
+                        </div>
+                        <div class="tape-bridge"></div>
+                        <div id="main-reel-right" class="cassette-reel">
+                            <div class="spoke"></div>
+                            <div class="spoke"></div>
+                            <div class="spoke"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bàn phím số mở khóa Analog -->
+                <div class="deck-controls-area">
+                    <p class="deck-hint-text">
+                        Nhập <strong>mã số bí mật</strong> để mở khóa cuộn băng:
+                    </p>
+
+                    <div class="pin-display-wrapper">
+                        <input type="tel" id="password-input" class="vintage-pin-input"
+                            placeholder="Nhập mã số..." maxlength="8" inputmode="numeric"
+                            autocomplete="off">
+                    </div>
+
+                    <div class="analog-keypad">
+                        <button class="key-btn" data-key="1">1</button>
+                        <button class="key-btn" data-key="2">2</button>
+                        <button class="key-btn" data-key="3">3</button>
+                        <button class="key-btn" data-key="4">4</button>
+                        <button class="key-btn" data-key="5">5</button>
+                        <button class="key-btn" data-key="6">6</button>
+                        <button class="key-btn" data-key="7">7</button>
+                        <button class="key-btn" data-key="8">8</button>
+                        <button class="key-btn" data-key="9">9</button>
+                        <button class="key-btn key-action" id="btn-key-clear">CLEAR</button>
+                        <button class="key-btn" data-key="0">0</button>
+                        <button class="key-btn key-action" id="btn-key-back">⌫</button>
+                    </div>
+
+                    <button id="btn-unlock" class="btn-vintage-play">
+                        <span class="play-icon">▶</span>
+                        <span>PHÁT CUỘN BĂNG KỶ NIỆM</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- =================================================================
+             2. MÀN HÌNH 2: CUỘN PHIM 35MM & PHÒNG RỬA ẢNH (SCREEN SLIDESHOW)
+             ================================================================= -->
+        <section id="screen-slideshow" class="screen">
+            <div class="vintage-panel film-reel-container">
+                <!-- Thanh hiển thị máy quay Camcorder -->
+                <div class="camcorder-bar">
+                    <div class="rec-badge"><span class="rec-dot"></span> REC 10:09:06</div>
+                    <div class="film-code-badge" id="film-code-text">KODAK PORTRA 400 • EXP 01</div>
+                    <div class="battery-badge">SP 0:00:24 ▮▮▮▯</div>
+                </div>
+
+                <div class="section-title-wrap">
+                    <h2 class="vintage-heading">Cuộn Phim Kỷ Niệm 35mm</h2>
+                    <p class="vintage-sub">Lưu giữ những khoảnh khắc bình dị và đáng nhớ nhất</p>
+                </div>
+
+                <!-- Thước phim 35mm thật với lỗ sprocket -->
+                <div class="film-strip-outer">
+                    <!-- Hàng lỗ bấm phim trên -->
+                    <div class="sprocket-row">
+                        <span class="sprocket"></span><span class="sprocket"></span>
+                        <span class="sprocket"></span><span class="sprocket"></span>
+                        <span class="sprocket"></span><span class="sprocket"></span>
+                        <span class="sprocket"></span><span class="sprocket"></span>
+                        <span class="sprocket"></span><span class="sprocket"></span>
+                        <span class="sprocket"></span><span class="sprocket"></span>
+                    </div>
+
+                    <!-- Khung ảnh chính -->
+                    <div class="film-frame">
+                        <div class="frame-meta-top">
+                            <span id="film-frame-number">FRAME 01</span>
+                            <span id="film-frame-date">10 '09 '24</span>
+                        </div>
+
+                        <div class="film-photo-wrapper">
+                            <img id="polaroid-img" class="film-photo" src="images/anh1.png" alt="Memory Film Frame">
+                            <div class="photo-vintage-overlay"></div>
+                        </div>
+                    </div>
+
+                    <!-- Hàng lỗ bấm phim dưới -->
+                    <div class="sprocket-row">
+                        <span class="sprocket"></span><span class="sprocket"></span>
+                        <span class="sprocket"></span><span class="sprocket"></span>
+                        <span class="sprocket"></span><span class="sprocket"></span>
+                        <span class="sprocket"></span><span class="sprocket"></span>
+                        <span class="sprocket"></span><span class="sprocket"></span>
+                        <span class="sprocket"></span><span class="sprocket"></span>
+                    </div>
+                </div>
+
+                <!-- Điều khiển tua phim -->
+                <div class="film-controls">
+                    <button id="prev-slide" class="btn-vintage-ctrl" title="Tua về trước">❮ REW</button>
+                    <div id="slide-dots" class="film-frame-dots"></div>
+                    <button id="next-slide" class="btn-vintage-ctrl" title="Tua tiếp theo">FWD ❯</button>
+                </div>
+
+                <button id="btn-to-games" class="btn-vintage-accent">
+                    <span>MỞ THỬ THÁCH BÍ MẬT</span>
                 </button>
             </div>
         </section>
 
         <!-- =================================================================
-             2. MÀN HÌNH: TRÌNH CHIẾU ALBUM ẢNH (SCREEN SLIDESHOW)
-             ================================================================= -->
-        <section id="screen-slideshow" class="screen">
-            <div class="glass-card">
-                <h2 class="romantic-title">Những Khoảnh Khắc Đẹp 🌸</h2>
-                <p class="script-sub">Lưu giữ những phút giây thật tự nhiên và bình yên</p>
-
-                <div class="slideshow-container">
-                    <div class="polaroid-card">
-                        <div class="pin-clip">📌</div>
-                        <div class="polaroid-img-box">
-                            <img id="polaroid-img" class="polaroid-img" src="images/max1.jpg" alt="Memory Photo">
-                        </div>
-                        <div id="polaroid-caption" class="polaroid-caption">
-                            Một khoảnh khắc thật tự nhiên và đáng nhớ ✨
-                        </div>
-                    </div>
-
-                    <div class="slideshow-controls">
-                        <button id="prev-slide" class="btn-romantic btn-circle" title="Ảnh trước">❮</button>
-                        <div id="slide-dots" class="slide-dots"></div>
-                        <button id="next-slide" class="btn-romantic btn-circle" title="Ảnh tiếp theo">❯</button>
-                    </div>
-
-                    <button id="btn-to-games" class="btn-romantic">
-                        <span>Khám Phá Phần Tiếp Theo</span> 🎁
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- =================================================================
-             3. MÀN HÌNH: THỬ THÁCH MINIGAMES (SCREEN GAMES)
+             3. MÀN HÌNH 3: THỬ THÁCH BÍ MẬT - TÌM BÔNG HOA ĐẸP NHẤT (SCREEN GAMES)
              ================================================================= -->
         <section id="screen-games" class="screen">
-            <div class="glass-card">
-                <h2 class="romantic-title">Thử Thách Nhỏ Mừng Sinh Nhật 🎁</h2>
-                <p class="script-sub">Cùng hoàn thành 3 thử thách nhỏ để xem lời chúc nhé!</p>
-
-                <!-- Thanh trạng thái 3 phong ấn -->
-                <div class="quest-status-bar">
-                    <div id="seal-1" class="seal-item">
-                        <span class="seal-icon">🔒</span> 1: Hứng Quà
+            <div class="vintage-panel quests-container">
+                <!-- Giai đoạn 1: Trò chơi Tìm Bông Hoa Đẹp Nhất -->
+                <div id="stage-flower" class="flower-stage-box">
+                    <div class="section-title-wrap">
+                        <div class="flower-badge">THỬ THÁCH BÍ MẬT</div>
+                        <h2 class="vintage-heading" id="flower-game-title">Tìm Bông Hoa Đẹp Nhất</h2>
+                        <p class="vintage-sub" id="flower-game-subtitle">
+                            Trong các loài hoa dưới đây, theo bạn bông hoa nào là đẹp nhất?
+                        </p>
                     </div>
-                    <div id="seal-2" class="seal-item">
-                        <span class="seal-icon">🔒</span> 2: Hoa Đẹp Nhất
+
+                    <div class="flower-stats-bar">
+                        <div class="stat-box">
+                            <span class="stat-label">LƯỢT CHỌN:</span>
+                            <span id="flower-attempts-num" class="stat-value">0 / 3</span>
+                        </div>
                     </div>
-                    <div id="seal-3" class="seal-item">
-                        <span class="seal-icon">🔒</span> 3: Thổi Nến
-                    </div>
-                </div>
 
-                <!-- Stage 1: Game Hứng quà Canvas Catcher -->
-                <div id="stage-1" class="game-stage-box">
-                    <div class="score-badge" id="score-display">🎁 Điểm: 0/10</div>
-                    <p style="margin-bottom: 8px; color: var(--accent-gold); font-weight: 600; font-size: 0.95rem;">
-                        Thử thách 1: Di chuột hoặc vuốt ngón tay để hứng đủ 10 món quà nhé! 🎁
-                    </p>
-                    <canvas id="catcher-canvas" width="480" height="280"></canvas>
-                </div>
-
-                <!-- Stage 2: Game Chọn Bông Hoa Đẹp Nhất -->
-                <div id="stage-2" class="game-stage-box" style="display: none;">
-                    <div class="score-badge" id="flower-progress-badge">🌸 Lượt chọn: 0/3</div>
-                    <p style="color: var(--rose-gold); font-weight: 700; font-size: 1.15rem; margin-bottom: 4px; margin-top: 6px;"
-                        id="flower-game-title">
-                        Thử Thách 2: Tìm Bông Hoa Đẹp Nhất 🌸
-                    </p>
-                    <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 14px;"
-                        id="flower-game-subtitle">
-                        Trong các loài hoa dưới đây, theo em bông hoa nào là đẹp nhất?
-                    </p>
-
-                    <!-- Hộp thông báo phản hồi khi chọn sai -->
+                    <!-- Hộp phản hồi khi chọn -->
                     <div id="flower-feedback-box" class="flower-feedback-box" style="display: none;"></div>
 
-                    <!-- Lưới các thẻ hoa để chọn -->
+                    <!-- Lưới 12 thẻ bông hoa -->
                     <div id="flower-cards-grid" class="flower-cards-grid"></div>
 
-                    <!-- Màn Kết luận Bông Hoa Đẹp Nhất (Sau 3 lần chọn) -->
+                    <!-- Màn Kết Luận Bất Ngờ (Sau 3 lần chọn) -->
                     <div id="flower-conclusion-card" class="flower-conclusion-card" style="display: none;">
-                        <div class="flower-conclusion-sparkle">✨🌸🌿🌸✨</div>
-                        <div class="lover-flower-frame">
-                            <span class="crown-icon">🌸</span>
-                            <img id="conclusion-lover-img" class="lover-flower-img" src="images/max1.jpg"
-                                alt="Bông hoa đẹp nhất">
-                            <div class="lover-flower-halo"></div>
+                        <div class="conclusion-crown-badge">BẬT MÍ BÍ MẬT</div>
+                        <h3 id="conclusion-title" class="conclusion-title">THẬT RA TRẦN THỊ THANH BÌNH LÀ BÔNG HOA ĐẸP NHẤT</h3>
+                        <p id="conclusion-subtitle" class="conclusion-subtitle">
+                            Mỗi loài hoa có một vẻ đẹp riêng, nhưng với mình, bạn luôn là điều đặc biệt nhất.
+                        </p>
+
+                        <!-- Album ảnh từ anh11 -> anh18 -->
+                        <div class="flower-gallery-wrapper">
+                            <div class="flower-gallery-counter">
+                                <span id="gallery-photo-idx">BỨC ẢNH 01</span> / 08
+                            </div>
+                            
+                            <div class="flower-polaroid-frame">
+                                <img id="flower-current-img" class="flower-polaroid-img" src="images/anh11.png" alt="Bông hoa đẹp nhất">
+                                <div class="photo-vintage-overlay"></div>
+                            </div>
+
+                            <div class="flower-gallery-controls">
+                                <button id="btn-flower-prev" class="btn-vintage-ctrl">❮ ẢNH TRƯỚC</button>
+                                <div id="flower-photo-dots" class="film-frame-dots"></div>
+                                <button id="btn-flower-next" class="btn-vintage-ctrl">ẢNH SAU ❯</button>
+                            </div>
+
+                            <!-- Dải thumbnail 8 ảnh để click chọn nhanh -->
+                            <div id="flower-thumbnails" class="flower-thumbnails-row"></div>
                         </div>
-                        <div class="flower-winner-badge">✨ ĐIỀU ĐẶC BIỆT NHẤT ✨</div>
-                        <h3 id="conclusion-title" class="conclusion-title">VỚI ANH, EM MỚI LÀ BÔNG HOA ĐẸP NHẤT 🌸</h3>
-                        <p id="conclusion-subtitle" class="conclusion-subtitle">Mỗi người một vẻ, nhưng em luôn là điều
-                            đặc biệt nhất ✨</p>
-                        <div id="conclusion-message" class="conclusion-message"></div>
-                        <button id="btn-to-stage-3" class="btn-romantic" style="margin-top: 18px;">
-                            <span>Tiếp Tục & Thổi Nến</span> 🎂
+
+                        <div id="conclusion-message" class="conclusion-message">
+                            Hoa đẹp đến đâu rồi cũng có lúc tàn, nhưng nét duyên dáng, sự chân thành và nụ cười rạng rỡ của bạn luôn để lại ấn tượng đẹp nhất. Chúc bạn luôn tự tin, tỏa sáng và hạnh phúc theo cách của riêng mình nhé.
+                        </div>
+
+                        <button id="btn-to-candle-stage" class="btn-vintage-accent" style="margin-top: 18px;">
+                            <span>TIẾP TỤC ĐẾN PHẦN THỔI NẾN</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Stage 3: Thổi nến bánh kem -->
-                <div id="stage-3" class="game-stage-box" style="display: none;">
-                    <p style="color: var(--accent-gold); font-weight: 600; margin-bottom: 10px;">
-                        Thử thách cuối: Nhắm mắt ước một điều ước cho tuổi mới, sau đó click vào ngọn nến để thổi tắt
-                        nhé! 🕯️
-                    </p>
-                    <div class="cake-wrapper">
-                        <div class="cake">
-                            <div id="cake-candle" class="candle">
-                                <div id="candle-flame" class="flame"></div>
-                            </div>
+                <!-- Giai đoạn 2: Bánh Kem & Thổi Nến Ước Nguyện -->
+                <div id="stage-candle" class="candle-stage-box" style="display: none;">
+                    <div class="section-title-wrap">
+                        <div class="flower-badge">ƯỚC NGUYỆN TUỔI MỚI</div>
+                        <h2 class="vintage-heading">Thổi Nến Sinh Nhật</h2>
+                        <p class="vintage-sub">
+                            Nhắm mắt ước một điều ước cho tuổi mới, sau đó chạm vào ngọn nến để thổi tắt nhé.
+                        </p>
+                    </div>
+
+                    <div class="vintage-cake-wrapper">
+                        <div id="vintage-candle-wrapper" class="vintage-candle-box" title="Chạm vào ngọn nến để thổi tắt">
+                            <div id="vintage-candle-flame" class="vintage-flame"></div>
+                            <div class="vintage-candle-wick"></div>
+                            <div class="vintage-candle-body"></div>
+                        </div>
+                        <div class="vintage-cake-body">
+                            <div class="cake-cream-layer top"></div>
+                            <div class="cake-cream-layer middle"></div>
                         </div>
                     </div>
-                    <div class="blow-hint">👉 Chạm vào ngọn nến để thổi tắt 🎂</div>
+
+                    <div id="vintage-blow-hint" class="blow-action-hint">
+                        Chạm vào ngọn nến để thổi tắt và mở khóa Bức Thư
+                    </div>
                 </div>
             </div>
         </section>
 
         <!-- =================================================================
-             4. MÀN HÌNH: BỨC THƯ BÍ MẬT (SCREEN SECRET LETTER)
+             4. MÀN HÌNH 4: BỨC THƯ MÁY ĐÁNH CHỮ & CON DẤU SÁP (SCREEN LETTER)
              ================================================================= -->
         <section id="screen-letter" class="screen">
-            <div class="envelope-box">
-                <div class="letter-header">
-                    <div class="letter-title">💌 Happy Birthday</div>
-                    <div class="letter-stamp">🎂</div>
+            <div class="typewriter-paper">
+                <div class="paper-header">
+                    <div class="archive-code">ARCHIVE NO. 1009-2006</div>
+                    <div class="paper-title-main">BẢN GHI KỶ NIỆM</div>
+                    <div class="paper-date-tag">Hà Nội, Ngày 10 Tháng 09 Năm 2026</div>
                 </div>
 
-                <div id="letter-greeting" class="letter-greeting">Gửi em,</div>
+                <div class="paper-divider"></div>
 
-                <div id="letter-body" class="letter-body">
-                    <!-- Nội dung thư sẽ được gõ máy chữ tự động qua JS -->
+                <div id="letter-greeting" class="typewriter-greeting">Gửi Bìm,</div>
+
+                <div id="letter-body" class="typewriter-body">
+                    <!-- Nội dung thư được gõ từng chữ chân thực -->
                 </div>
 
-                <div id="letter-signature" class="letter-signature">
-                    Gửi tặng em 🌿
-                </div>
+                <div class="letter-footer">
+                    <div id="letter-signature" class="typewriter-signature">
+                        Thế Đại
+                    </div>
 
-                <div style="margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 12px;">
-                    <button id="btn-send-love" class="btn-romantic btn-kiss-giant">
-                        <span>Gửi Lời Cảm Ơn / Thả Tim</span> 💖
-                    </button>
-                    <div id="kiss-counter-badge" class="kiss-counter-badge" style="display: none;">
-                        💖 Đã gửi <span id="kiss-count">0</span> trái tim yêu thương!
+                    <div class="stamp-action-area">
+                        <button id="btn-wax-stamp" class="btn-wax-seal" title="Đóng dấu sáp lưu niệm">
+                            <div class="wax-seal-inner">
+                                <span class="wax-monogram">BIM</span>
+                                <span class="wax-sub">2006</span>
+                            </div>
+                        </button>
+                        <span class="stamp-prompt">Chạm vào con dấu sáp để lưu giữ kỷ niệm</span>
+                        <div id="stamp-counter" class="stamp-counter" style="display: none;">
+                            Đã đóng <strong id="stamp-count-num">0</strong> dấu mộc kỷ niệm!
+                        </div>
                     </div>
                 </div>
             </div>
@@ -210,6 +334,7 @@
     <script src="js/music.js"></script>
     <script src="js/hearts.js"></script>
     <script src="js/confetti.js"></script>
+    <script src="js/secret-game.js"></script>
     <script src="js/main.js"></script>
 </body>
 

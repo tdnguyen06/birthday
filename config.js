@@ -1,58 +1,102 @@
 // =================================================================
-// 💖 CẤU HÌNH THÔNG TIN TRANG WEB MỪNG SINH NHẬT
+// 🎞️ TOÀN BỘ TEXT VÀ CẤU HÌNH DỰ ÁN (TẬP TRUNG TẠI FILE NÀY ĐỂ DỄ SỬA)
 // =================================================================
+
 const CONFIG = {
-    // Tiêu đề hiển thị trên thanh tab trình duyệt
-    titleWeb: "Happy Birthday 🎂✨",
+    // -------------------------------------------------------------
+    // 1. THÔNG TIN CHUNG & TRANG WEB
+    // -------------------------------------------------------------
+    titleWeb: "Mixtape 2006 • Happy Birthday Bìm 🎞️",
+    loverName: "bìm", // Tên để mở khóa nếu gõ chữ
+    birthdayDate: "10.09.2006",
+    
+    // Các mật khẩu hợp lệ để mở khóa cuộn băng (hỗ trợ cả ngày sinh, chữ thường...)
+    passwords: ["100906", "10092006", "1009", "bìm", "bim"],
 
-    // Tên của bạn nữ
-    loverName: "bìm",
+    // -------------------------------------------------------------
+    // 2. WIDGET CASSETTE GÓC MÀN HÌNH & MÀN 1 (MÁY BĂNG & MÃ MỞ KHÓA)
+    // -------------------------------------------------------------
+    floatingCassette: {
+        title: "MIXTAPE 2006",
+        statusReady: "Side A • Sẵn sàng",
+        statusPlaying: "Side A • Đang phát",
+        statusPaused: "Side A • Tạm dừng"
+    },
 
-    // Mật khẩu mở khóa (6 chữ số)
-    passwords: ["100906"],
+    screenLock: {
+        deckBrand: "ANALOG STEREO DECK • MODEL 2006",
+        counterLabel: "TAPE COUNTER",
+        badge: "PREMIUM CASSETTE 60 MIN",
+        side: "SIDE A",
+        tapeTitle: "Mixtape For Bìm",
+        tapeSub: "Special Edition • Memories Collection",
+        pinHint: "Nhập <strong>mã số bí mật</strong> để mở khóa cuộn băng:",
+        pinPlaceholder: "Nhập mã số...",
+        unlockBtnText: "PHÁT CUỘN BĂNG KỶ NIỆM",
+        wrongPassMsg: "Mã số chưa chính xác rồi, bạn thử lại nhé!"
+    },
 
-    // Ngày sinh nhật hiển thị
-    birthdayDate: "10/09/2006",
+    // -------------------------------------------------------------
+    // 3. MÀN 2: CUỘN PHIM 35MM (SLIDESHOW KỶ NIỆM)
+    // -------------------------------------------------------------
+    screenSlideshow: {
+        recBadge: "REC 10:09:06",
+        batteryBadge: "SP 0:00:24 ▮▮▮▯",
+        heading: "Cuộn Phim Kỷ Niệm 35mm",
+        sub: "Lưu giữ những khoảnh khắc bình dị và đáng nhớ nhất",
+        btnToGamesText: "MỞ THỬ THÁCH BÍ MẬT"
+    },
 
-    // Danh sách ảnh kỷ niệm cho phần Slideshow
+    // Danh sách 7 thước phim 35mm (Slideshow)
     gallery: [
         {
-            src: "images/max1.jpg",
-            caption: "Một khoảnh khắc thật tự nhiên và đáng nhớ ✨"
+            src: "images/anh1.png",
+            code: "KODAK-400 • EXP 01",
+            date: "10 '09 '24"
         },
         {
-            src: "images/max2.jpg",
-            caption: "Những phút giây bình yên và nhiều niềm vui 🌸"
+            src: "images/anh2.png",
+            code: "FUJIFILM • EXP 02",
+            date: "12 '11 '24"
         },
         {
-            src: "images/max3.jpg",
-            caption: "Mỗi ngày trôi qua đều có thêm những kỷ niệm đẹp 🌿"
+            src: "images/anh3.png",
+            code: "PORTRA-160 • EXP 03",
+            date: "04 '02 '25"
         },
         {
-            src: "images/max4.jpg",
-            caption: "Nụ cười của em luôn mang lại năng lượng rất tích cực 😊"
+            src: "images/anh4.png",
+            code: "CINELIGHT • EXP 04",
+            date: "28 '04 '25"
         },
         {
-            src: "images/max5.jpg",
-            caption: "Cảm ơn em vì những khoảnh khắc ý nghĩa đã cùng chia sẻ ✨"
+            src: "images/anh5.png",
+            code: "ILFORD-HP5 • EXP 05",
+            date: "19 '07 '25"
         },
         {
-            src: "images/max6.jpg",
-            caption: "Chúc mừng sinh nhật! Chúc em tuổi mới luôn vui tươi, an nhiên và may mắn 🎂"
+            src: "images/anh6.png",
+            code: "GOLD-200 • EXP 06",
+            date: "10 '09 '26"
+        },
+        {
+            src: "images/anh7.png",
+            code: "VINTAGE • EXP 07",
+            date: "10 '09 '26"
         }
     ],
 
-    // Cấu hình Minigame 1: Game Hứng Quà Sinh Nhật
-    game1: {
-        title: "Thử Thách 1: Hứng Quà Sinh Nhật 🎁",
-        targetScore: 10,
-        description: "Di chuyển chiếc giỏ để hứng đủ 10 món quà sinh nhật rơi từ trên xuống nhé!"
-    },
-
-    // Cấu hình Minigame 2: Trò chơi Chọn Bông Hoa Đẹp Nhất
+    // -------------------------------------------------------------
+    // 4. MÀN 3 - GIAI ĐOẠN 1: TRÒ CHƠI BÍ MẬT (TÌM BÔNG HOA ĐẸP NHẤT)
+    // -------------------------------------------------------------
     flowerGame: {
-        title: "Thử Thách 2: Tìm Bông Hoa Đẹp Nhất 🌸",
-        subTitle: "Trong các loài hoa dưới đây, theo em bông hoa nào là đẹp nhất?",
+        badge: "THỬ THÁCH BÍ MẬT",
+        title: "Tìm Bông Hoa Đẹp Nhất",
+        subTitle: "Trong các loài hoa dưới đây, theo bạn bông hoa nào là đẹp nhất?",
+        attemptsLabel: "LƯỢT CHỌN:",
+        selectTag: "CHỌN",
+
+        // Danh sách 12 loài hoa
         flowers: [
             { id: "rose_red", name: "Hoa Hồng Đỏ", icon: "🌹", desc: "Nổi bật và quyến rũ" },
             { id: "sunflower", name: "Hoa Hướng Dương", icon: "🌻", desc: "Luôn hướng về ánh nắng" },
@@ -67,43 +111,69 @@ const CONFIG = {
             { id: "lotus", name: "Hoa Sen", icon: "🌸", desc: "Thanh khiết và an yên" },
             { id: "orchid", name: "Lan Hồ Điệp", icon: "🌺", desc: "Sang trọng và tao nhã" }
         ],
-        // 3 câu phản hồi khi chọn 3 lần đầu
+
+        // 3 câu phản hồi khi người dùng bấm chọn 3 lần đầu
         failMessages: [
-            "❌ Hoa này rất đẹp, nhưng vẫn chưa phải đáp án đúng đâu nha! Thử lại xem 🌹",
-            "❌ Vẫn chưa chính xác nè! Bông hoa đẹp nhất không nằm trong số này đâu. Chọn tiếp thử đi 🌷",
-            "❌ Vẫn chưa đúng rồi! Thật ra không có loài hoa tự nhiên nào là đẹp nhất cả..."
+            "Hoa này rất đẹp, nhưng vẫn chưa phải đáp án chính xác đâu nha. Thử lại xem sao.",
+            "Vẫn chưa chính xác nè. Bông hoa đẹp nhất không nằm trong số này đâu. Bạn chọn tiếp thử đi.",
+            "Vẫn chưa đúng rồi. Thật ra không có loài hoa tự nhiên nào ở đây là đẹp nhất cả..."
         ],
-        // Màn kết luận nhẹ nhàng, chân thành
+
+        // Màn Bật Mí Sau 3 Lần Chọn Kèm Album 8 Ảnh (anh11 -> anh18)
         conclusion: {
-            title: "🌸 VỚI ANH, EM MỚI LÀ BÔNG HOA ĐẸP NHẤT 🌸",
-            subtitle: "Mỗi người một vẻ, nhưng em luôn là điều đặc biệt nhất ✨",
-            message: "Hoa đẹp đến đâu rồi cũng có lúc tàn, nhưng nét duyên dáng, sự chân thành và nụ cười rạng rỡ của em luôn để lại ấn tượng đẹp nhất. Chúc em luôn tự tin, tỏa sáng và hạnh phúc theo cách của riêng mình nhé! 🌿✨",
-            image: "images/max1.jpg",
-            btnText: "Tiếp Tục & Thổi Nến 🎂"
+            badge: "BẬT MÍ BÍ MẬT",
+            title: "THẬT RA TRẦN THỊ THANH BÌNH LÀ BÔNG HOA ĐẸP NHẤT",
+            subtitle: "Mỗi loài hoa có một vẻ đẹp riêng, nhưng với mình, bạn luôn là điều đặc biệt nhất.",
+            message: "Hoa đẹp đến đâu rồi cũng có lúc tàn, nhưng nét duyên dáng, sự chân thành và nụ cười rạng rỡ của bạn luôn để lại ấn tượng đẹp nhất. Chúc bạn luôn tự tin, tỏa sáng và hạnh phúc theo cách của riêng mình nhé.",
+            photoCounterLabel: "BỨC ẢNH",
+            images: [
+                "images/anh11.png",
+                "images/anh12.png",
+                "images/anh13.png",
+                "images/anh14.png",
+                "images/anh15.png",
+                "images/anh16.png",
+                "images/anh17.png",
+                "images/anh18.png"
+            ],
+            btnText: "TIẾP TỤC ĐẾN PHẦN THỔI NẾN"
         }
     },
 
-    // Cấu hình Minigame 3: Thổi nến sinh nhật & Ước nguyện
-    gameCake: {
-        title: "Thử Thách Cuối: Thổi Nến & Ước Nguyện 🎂🕯️",
-        description: "Nhắm mắt ước một điều ước cho tuổi mới, sau đó chạm vào ngọn nến để thổi tắt nhé!"
+    // -------------------------------------------------------------
+    // 5. MÀN 3 - GIAI ĐOẠN 2: BÁNH KEM & THỔI NẾN ƯỚC NGUYỆN
+    // -------------------------------------------------------------
+    cakeGame: {
+        badge: "ƯỚC NGUYỆN TUỔI MỚI",
+        title: "Thổi Nến Sinh Nhật",
+        hint: "Nhắm mắt ước một điều ước cho tuổi mới, sau đó chạm vào ngọn nến để thổi tắt nhé.",
+        blowHint: "Chạm vào ngọn nến để thổi tắt và mở khóa Bức Thư",
+        blownSuccessHint: "Điều ước đã được gửi đi. Đang mở bức thư..."
     },
 
-    // Nội dung bức thư chúc mừng sinh nhật
+    // -------------------------------------------------------------
+    // 6. MÀN 4: BỨC THƯ MÁY ĐÁNH CHỮ & CON DẤU SÁP
+    // -------------------------------------------------------------
     secretLetter: {
-        title: "Lời Chúc Sinh Nhật Gửi Tới Em 💌",
-        greeting: "Gửi em,",
+        archiveCode: "ARCHIVE NO. 1009-2006",
+        title: "BẢN GHI KỶ NIỆM",
+        date: "Hà Nội, Ngày 10 Tháng 09 Năm 2026",
+        greeting: "Gửi Bìm,",
         paragraphs: [
-            "Hôm nay là một ngày thật đặc biệt — ngày sinh nhật của em.",
-            "Anh cảm thấy rất vui và may mắn khi có cơ hội được quen biết, trò chuyện và đồng hành cùng em trong suốt khoảng thời gian qua.",
-            "Bước sang tuổi mới, anh chúc em luôn giữ được nụ cười rạng rỡ, nhiều sức khỏe, luôn bình an và gặt hái được những mục tiêu mà em ấp ủ.",
-            "Mong rằng những điều tốt đẹp, may mắn và vui vẻ nhất sẽ luôn đến với em trên mỗi chặng đường phía trước.",
-            "À mà,vì anh nghĩ thứ 5 sẽ là ngày để gia đình và bạn bè chúc mừng sinh nhật em, vậy nên Anh muốn hẹn em đi chơi vào tối thứ 7 lúc 18h30 và cùng nhau có một buổi tối thật vui nhé! ☕✨",
-            "Chúc mừng sinh nhật em! Chúc em có một tuổi mới thật trọn vẹn và ý nghĩa. 🎂"
+            "Hôm nay là sinh nhật của mày rồi.",
+            "Thật sự là không thể ngờ rằng, người ngồi cạnh tao ngày hôm ấy lại trở thành người yêu tao, và cùng tao đi tới tận gần 3 năm rồi.",
+            "Trong thời gian đó, tao biết mày cũng đã bao lần rơi nước mắt, bao lần đau khổ, rất cảm ơn vì mày vẫn còn ở lại bên tao.",
+            "Chúc tuổi mới siêu cấp xinh đẹp, mạnh khỏe, hạnh phúc, không giận người yêu nhiều như tuổi 1x nhé!",
+            "Và đừng quên chúng ta có hẹn đi chơi vào tối thứ 7 nhaaaaaaa!",
+            "Chúc mừng sinh nhật người đẹp nhất trần gian"
         ],
-        signature: "Gửi tặng em 🌿"
-    },
-
-    // Nhạc nền (Link nhạc MP3 trực tiếp chất lượng cao)
-    musicSrc: "https://assets.mixkit.co/music/preview/mixkit-happy-birthday-to-you-443.mp3"
+        signature: "Thế Đại",
+        stampMonogram: "BIM",
+        stampSub: "2006",
+        stampCounterLabel: "LƯỢT ĐÓNG DẤU:"
+    }
 };
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = CONFIG;
+}
