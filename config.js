@@ -168,7 +168,7 @@ const CONFIG = {
                 "images/anh17.png",
                 "images/anh18.png"
             ],
-            btnText: "ĐÓNG LỜI NHẮN BÍ MẬT"
+            btnText: "TIẾP TỤC: THỔI NẾN SINH NHẬT 🎂"
         }
     },
 

@@ -143,6 +143,19 @@ class MainController {
             if (sub && CONFIG.flappyGame.subtitle) sub.textContent = CONFIG.flappyGame.subtitle;
         }
 
+        // 5.1. Trò chơi bí mật (Flower Game Modal)
+        if (CONFIG.flowerGame) {
+            const title = document.getElementById('modal-flower-title');
+            const sub = document.getElementById('modal-flower-subtitle');
+            const dismissBtn = document.getElementById('btn-dismiss-secret-modal');
+            if (title && CONFIG.flowerGame.title) title.textContent = CONFIG.flowerGame.title;
+            if (sub && CONFIG.flowerGame.subTitle) sub.textContent = CONFIG.flowerGame.subTitle;
+            if (dismissBtn && CONFIG.flowerGame.conclusion && CONFIG.flowerGame.conclusion.btnText) {
+                const btnSpan = dismissBtn.querySelector('span');
+                if (btnSpan) btnSpan.textContent = CONFIG.flowerGame.conclusion.btnText;
+            }
+        }
+
         // 6. Màn 4: Thư tay & Con dấu
         if (CONFIG.secretLetter) {
             const archiveCode = document.querySelector('.archive-code');

@@ -799,13 +799,47 @@ class VintageQuestController {
     }
 
     advanceToCandleStage() {
+        // Dừng tất cả các minigame đang chạy và timer
+        this.isPianoRunning = false;
+        if (this.pianoAnimId) cancelAnimationFrame(this.pianoAnimId);
+
+        this.clearMemoryTimeouts();
+        this.isMachinePlaying = false;
+        this.isMemoryAcceptingInput = false;
+
+        this.isFlappyRunning = false;
+        if (this.flappyAnimId) cancelAnimationFrame(this.flappyAnimId);
+
+        this.currentStage = 4;
+
+        // Đánh dấu hoàn thành toàn bộ 3 thử thách / phong ấn
+        this.updateSealStatus(1, 'unlocked');
+        this.updateSealStatus(2, 'unlocked');
+        this.updateSealStatus(3, 'unlocked');
+
+        // Bật nhạc nếu chưa phát
+        if (window.mainController && !window.mainController.isMusicPlaying) {
+            window.mainController.startMusic();
+        }
+
+        // Chuyển màn hình sang screen-games nếu đang ở màn hình khác
+        if (window.mainController && typeof window.mainController.showScreen === 'function') {
+            window.mainController.showScreen('screen-games');
+        }
+
+        const stage1 = document.getElementById('stage-piano');
+        const stage2 = document.getElementById('stage-memory');
         const stage3 = document.getElementById('stage-flappy');
         const stageCandle = document.getElementById('stage-candle');
 
+        if (stage1) stage1.style.display = 'none';
+        if (stage2) stage2.style.display = 'none';
         if (stage3) stage3.style.display = 'none';
         if (stageCandle) {
             stageCandle.style.display = 'flex';
-            stageCandle.scrollIntoView({ behavior: 'smooth' });
+            setTimeout(() => {
+                stageCandle.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
         }
     }
 
@@ -897,6 +931,9 @@ class VintageQuestController {
             modal.style.display = 'none';
             document.body.style.overflow = '';
         }
+
+        // Khi ấn đóng trò chơi bí mật -> chuyển thẳng ra thổi nến mà không cần chơi 3 trò kia
+        this.advanceToCandleStage();
     }
 
     renderSecretFlowerCards() {
