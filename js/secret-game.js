@@ -852,7 +852,7 @@ class VintageQuestController {
         const cakeCfg = CONFIG.cakeGame;
 
         if (candleWrapper) {
-            candleWrapper.addEventListener('click', () => {
+            const handleBlow = () => {
                 if (this.isCandleBlown) return;
                 this.isCandleBlown = true;
 
@@ -879,7 +879,13 @@ class VintageQuestController {
                         window.mainController.typewriterLetter();
                     }
                 }, 2200);
-            });
+            };
+
+            candleWrapper.addEventListener('click', handleBlow);
+            candleWrapper.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                handleBlow();
+            }, { passive: false });
         }
     }
 
