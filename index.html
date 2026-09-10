@@ -211,7 +211,8 @@
 
                 <!-- Nút Tôi Quá Yếu (Bỏ qua trực tiếp thử thách) -->
                 <div class="skip-quest-wrapper">
-                    <button id="btn-skip-all-games" class="btn-skip-games btn-skip-trigger"
+                    <button id="btn-skip-all-games" class="btn-skip-games btn-skip-trigger" type="button"
+                        onclick="window.skipToCandle(event)"
                         title="Bỏ qua thử thách để đến thổi nến">
                         <span>🏳️ Tôi quá yếu để chơi</span>
                     </button>
@@ -268,7 +269,7 @@
                             <button id="btn-restart-piano" class="btn-vintage-accent">
                                 <span>THỬ LẠI LẦN NỮA</span>
                             </button>
-                            <button class="btn-skip-sub-game btn-skip-trigger" type="button">
+                            <button class="btn-skip-sub-game btn-skip-trigger" type="button" onclick="window.skipToCandle(event)">
                                 <span>🏳️ Tôi quá yếu (Bỏ qua luôn) 🎂</span>
                             </button>
                         </div>
@@ -342,7 +343,7 @@
                             <button id="btn-restart-memory" class="btn-vintage-accent">
                                 <span>CHƠI LẠI THỬ THÁCH 2</span>
                             </button>
-                            <button class="btn-skip-sub-game btn-skip-trigger" type="button">
+                            <button class="btn-skip-sub-game btn-skip-trigger" type="button" onclick="window.skipToCandle(event)">
                                 <span>🏳️ Tôi quá yếu (Bỏ qua luôn) 🎂</span>
                             </button>
                         </div>
@@ -379,7 +380,7 @@
                             <button id="btn-restart-flappy" class="btn-vintage-accent">
                                 <span>BAY LẠI TỪ ĐẦU</span>
                             </button>
-                            <button class="btn-skip-sub-game btn-skip-trigger" type="button">
+                            <button class="btn-skip-sub-game btn-skip-trigger" type="button" onclick="window.skipToCandle(event)">
                                 <span>🏳️ Tôi quá yếu (Bỏ qua luôn) 🎂</span>
                             </button>
                         </div>

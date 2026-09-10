@@ -50,6 +50,7 @@ class VintageQuestController {
     }
 
     init() {
+        window.questController = this;
         this.initPianoGame();
         this.initMemoryGame();
         this.initFlappyGame();
@@ -62,11 +63,11 @@ class VintageQuestController {
         const skipBtns = document.querySelectorAll('.btn-skip-trigger');
         skipBtns.forEach((btn) => {
             btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (window.birthdaySound) window.birthdaySound.playMagicChime();
-                if (window.fireworks) window.fireworks.burstConfetti(e.clientX, e.clientY, 30);
-                this.advanceToCandleStage();
+                if (window.skipToCandle) {
+                    window.skipToCandle(e);
+                } else {
+                    this.advanceToCandleStage();
+                }
             });
         });
     }
@@ -1157,3 +1158,41 @@ class VintageQuestController {
 }
 
 window.VintageQuestController = VintageQuestController;
+
+window.skipToCandle = function(event) {
+    if (event) {
+        try { event.preventDefault(); } catch(err) {}
+        try { event.stopPropagation(); } catch(err) {}
+    }
+    if (window.birthdaySound && typeof window.birthdaySound.playMagicChime === 'function') {
+        window.birthdaySound.playMagicChime();
+    }
+    if (window.fireworks && typeof window.fireworks.burstConfetti === 'function') {
+        window.fireworks.burstConfetti();
+    }
+    if (window.questController && typeof window.questController.advanceToCandleStage === 'function') {
+        window.questController.advanceToCandleStage();
+    } else if (window.mainController && window.mainController.questController) {
+        window.mainController.questController.advanceToCandleStage();
+    } else {
+        // Fallback trực tiếp DOM
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const screenGames = document.getElementById('screen-games');
+        if (screenGames) screenGames.classList.add('active');
+
+        const stage1 = document.getElementById('stage-piano');
+        const stage2 = document.getElementById('stage-memory');
+        const stage3 = document.getElementById('stage-flappy');
+        const stageCandle = document.getElementById('stage-candle');
+
+        if (stage1) stage1.style.display = 'none';
+        if (stage2) stage2.style.display = 'none';
+        if (stage3) stage3.style.display = 'none';
+        if (stageCandle) {
+            stageCandle.style.display = 'flex';
+            setTimeout(() => {
+                stageCandle.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 50);
+        }
+    }
+};
