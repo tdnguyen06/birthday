@@ -41,6 +41,28 @@ class BirthdaySoundEngine {
         osc.stop(this.ctx.currentTime + duration);
     }
 
+    // Âm thanh bong bóng / bắt quà pop nhẹ (Bubble Pop / Item Catch)
+    playPop() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.04);
+
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.05);
+    }
+
     // Âm thanh nút bấm cơ học Vintage (Cassette Button / Mechanical Switch Click)
     playMechanicalClick() {
         this.init();
