@@ -20,7 +20,6 @@ class VintageQuestController {
         this.isPianoRunning = false;
         this.pianoAnimId = null;
         this.pianoSpawnTimer = 0;
-        this.pianoSpeed = 3.2;
 
         // Stage 2: Music Memory vars
         this.memoryRounds = (CONFIG.memoryGame && CONFIG.memoryGame.rounds) || [6, 8, 10];
@@ -31,6 +30,7 @@ class VintageQuestController {
         this.userSequence = [];
         this.isMachinePlaying = false;
         this.isMemoryAcceptingInput = false;
+        this.memoryPlayTimeout = null;
 
         // Stage 3: Flappy Bird vars
         this.flappyCanvas = null;
@@ -117,7 +117,8 @@ class VintageQuestController {
         });
 
         if (restartBtn) {
-            restartBtn.addEventListener('click', () => {
+            restartBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 if (window.birthdaySound) window.birthdaySound.playMechanicalClick();
                 this.startPianoGame();
             });
@@ -187,8 +188,7 @@ class VintageQuestController {
         }
 
         // Tìm nốt nằm trong vùng nhấn (hit zone)
-        // Hit zone: từ 65% đến 98% chiều cao board
-        const hitCandidateIdx = this.pianoTiles.findIndex(t => t.lane === laneIdx && t.topPct >= 55 && t.topPct <= 98 && !t.hit);
+        const hitCandidateIdx = this.pianoTiles.findIndex(t => t.lane === laneIdx && t.topPct >= 52 && t.topPct <= 98 && !t.hit);
 
         if (hitCandidateIdx !== -1) {
             // Đánh trúng nốt
@@ -278,7 +278,7 @@ class VintageQuestController {
 
         this.pianoSpawnTimer++;
 
-        // Tạo nốt rơi đều đặn (mỗi 42 frames ~ 0.7s)
+        // Tạo nốt rơi đều đặn (mỗi 38 frames)
         if (this.pianoSpawnTimer % 38 === 0 && this.pianoScore < this.pianoTarget) {
             const lane = Math.floor(Math.random() * 4);
             const laneEl = document.querySelector(`.piano-lane[data-lane="${lane}"]`);
@@ -354,10 +354,18 @@ class VintageQuestController {
         });
 
         if (restartBtn) {
-            restartBtn.addEventListener('click', () => {
+            restartBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 if (window.birthdaySound) window.birthdaySound.playMechanicalClick();
                 this.startMemoryGame();
             });
+        }
+    }
+
+    clearMemoryTimeouts() {
+        if (this.memoryPlayTimeout) {
+            clearTimeout(this.memoryPlayTimeout);
+            this.memoryPlayTimeout = null;
         }
     }
 
@@ -365,6 +373,7 @@ class VintageQuestController {
         this.currentStage = 2;
         this.memoryCurrentRoundIdx = 0;
         this.memoryErrors = 0;
+        this.clearMemoryTimeouts();
         this.updateSealStatus(2, 'active');
 
         const overlay = document.getElementById('memory-overlay');
@@ -400,6 +409,7 @@ class VintageQuestController {
     }
 
     startMemoryRound() {
+        this.clearMemoryTimeouts();
         const requiredNotes = this.memoryRounds[this.memoryCurrentRoundIdx] || 6;
         this.updateMemoryUI();
         this.isMemoryAcceptingInput = false;
@@ -414,7 +424,7 @@ class VintageQuestController {
 
         this.setMemoryBanner(`🎧 Hãy lắng nghe chuỗi ${requiredNotes} nốt nhạc...`);
 
-        setTimeout(() => {
+        this.memoryPlayTimeout = setTimeout(() => {
             this.playMemorySequence(0);
         }, 1000);
     }
@@ -435,7 +445,7 @@ class VintageQuestController {
             window.birthdaySound.playPianoNote(note, 0.5);
         }
 
-        setTimeout(() => {
+        this.memoryPlayTimeout = setTimeout(() => {
             this.playMemorySequence(stepIndex + 1);
         }, 620);
     }
@@ -500,6 +510,7 @@ class VintageQuestController {
 
     handleMemoryMistake() {
         this.isMemoryAcceptingInput = false;
+        this.clearMemoryTimeouts();
         this.memoryErrors++;
         this.updateMemoryUI();
 
@@ -525,7 +536,7 @@ class VintageQuestController {
         } else {
             // Cho nghe lại chuỗi nốt của vòng hiện tại
             this.setMemoryBanner(`❌ Sai rồi! Bạn còn ${this.memoryMaxErrors - this.memoryErrors} mạng. Hãy nghe lại nhé...`, true);
-            setTimeout(() => {
+            this.memoryPlayTimeout = setTimeout(() => {
                 this.startMemoryRound();
             }, 1500);
         }
@@ -577,7 +588,8 @@ class VintageQuestController {
         });
 
         if (restartBtn) {
-            restartBtn.addEventListener('click', () => {
+            restartBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 if (window.birthdaySound) window.birthdaySound.playMechanicalClick();
                 this.startFlappyGame();
             });
@@ -654,7 +666,7 @@ class VintageQuestController {
         ctx.arc(0, 0, 22, 0, Math.PI * 2);
         ctx.fill();
 
-        // Icon nốt nhạc / trái tim
+        // Icon chim bồ câu / nốt nhạc
         ctx.font = '24px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -848,6 +860,7 @@ class VintageQuestController {
 
         this.secretFlowerAttempts = 0;
         this.secretPhotoIdx = 0;
+        this.secretFlowerRevealed = false;
 
         if (starBtn) {
             starBtn.addEventListener('click', (e) => {
