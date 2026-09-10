@@ -192,10 +192,10 @@ const CONFIG = {
         date: "Hà Nội, Ngày 10 Tháng 09 Năm 2026",
         greeting: "Gửi Bìm,",
         paragraphs: [
-            "Hôm nay là sinh nhật của mày rồi.",
-            "Thật sự là không thể ngờ rằng, người ngồi cạnh t ngày hôm ấy lại trở thành người yêu t, và cùng t đi tới tận gần 3 năm rồi.",
-            "Trong thời gian đó, t biết m đã bao lần khổ tâm vì sự vô ý của t, nhưng m vẫn còn ở lại bên t.",
-            "Chúc tuổi mới siêu cấp xinh đẹp, mạnh khỏe, hạnh phúc, pass mọi chứng chỉ và công ty mình apply, và nhớ không giận người yêu nhiều như tuổi 1x nhé!",
+            "Hôm nay là sinh nhật của bạn rồi.",
+            "Thật sự là không thể ngờ rằng, người ngồi cạnh mình ngày hôm ấy lại trở thành người yêu mình, và cùng mình đi tới tận gần 3 năm rồi.",
+            "Trong thời gian đó, mình biết bạn đã bao lần khổ tâm vì sự vô ý của mình, nhưng bạn vẫn còn ở lại bên mình.",
+            "Chúc tuổi mới siêu cấp xinh đẹp, mạnh khỏe, hạnh phúc, pass mọi chứng chỉ và công ty bạn apply, và nhớ không giận người yêu nhiều như tuổi 1x nhé!",
             "Và đừng quên chúng ta có hẹn đi chơi vào tối thứ 7 nhaaaaaaa!",
             "Chúc mừng sinh nhật người đẹp nhất trần gian"
         ],
