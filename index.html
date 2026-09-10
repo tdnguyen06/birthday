@@ -98,9 +98,8 @@
                     </p>
 
                     <div class="pin-display-wrapper">
-                        <input type="tel" id="password-input" class="vintage-pin-input"
-                            placeholder="Nhập mã số..." maxlength="8" inputmode="numeric"
-                            autocomplete="off">
+                        <input type="tel" id="password-input" class="vintage-pin-input" placeholder="Nhập mã số..."
+                            maxlength="8" inputmode="numeric" autocomplete="off">
                     </div>
 
                     <div class="analog-keypad">
@@ -210,6 +209,14 @@
                     </div>
                 </div>
 
+                <!-- Nút Tôi Quá Yếu (Bỏ qua trực tiếp thử thách) -->
+                <div class="skip-quest-wrapper">
+                    <button id="btn-skip-all-games" class="btn-skip-games btn-skip-trigger"
+                        title="Bỏ qua thử thách để đến thổi nến">
+                        <span>🏳️ Tôi quá yếu để chơi</span>
+                    </button>
+                </div>
+
                 <!-- =============================================================
                      THỬ THÁCH 1: PIANO TILES (BẤM NỐT RƠI)
                      ============================================================= -->
@@ -261,9 +268,13 @@
                             <button id="btn-restart-piano" class="btn-vintage-accent">
                                 <span>THỬ LẠI LẦN NỮA</span>
                             </button>
+                            <button class="btn-skip-sub-game btn-skip-trigger" type="button">
+                                <span>🏳️ Tôi quá yếu (Bỏ qua luôn) 🎂</span>
+                            </button>
                         </div>
                     </div>
-                    <div class="game-instruction-hint">Chạm trực tiếp vào nốt hoặc ấn phím D, F, J, K (hoặc 1, 2, 3, 4)</div>
+                    <div class="game-instruction-hint">Chạm trực tiếp vào nốt hoặc ấn phím D, F, J, K (hoặc 1, 2, 3, 4)
+                    </div>
                 </div>
 
                 <!-- =============================================================
@@ -274,7 +285,8 @@
                         <div class="flower-badge" id="memory-game-badge">THỬ THÁCH 2 / 3</div>
                         <h2 class="vintage-heading" id="memory-game-title">Thử Thách Nhớ Nốt Nhạc 🎵</h2>
                         <p class="vintage-sub" id="memory-game-subtitle">
-                            Lắng nghe giai điệu và bấm lại đúng chuỗi nốt: Vòng 1 (6 nốt) • Vòng 2 (8 nốt) • Vòng 3 (10 nốt). Nhớ sai 3 lần sẽ bị loại!
+                            Lắng nghe giai điệu và bấm lại đúng chuỗi nốt: Vòng 1 (6 nốt) • Vòng 2 (8 nốt) • Vòng 3 (10
+                            nốt). Nhớ sai 3 lần sẽ bị loại!
                         </p>
                     </div>
 
@@ -325,9 +337,13 @@
                         <!-- Lớp phủ Game Over Memory -->
                         <div id="memory-overlay" class="game-overlay-panel" style="display: none;">
                             <h3 id="memory-overlay-title" class="overlay-title">BẠN ĐÃ NHỚ SAI 3 LẦN!</h3>
-                            <p id="memory-overlay-sub" class="overlay-sub">Đừng nản lòng, hãy tập trung lắng nghe lại nhé!</p>
+                            <p id="memory-overlay-sub" class="overlay-sub">Đừng nản lòng, hãy tập trung lắng nghe lại
+                                nhé!</p>
                             <button id="btn-restart-memory" class="btn-vintage-accent">
                                 <span>CHƠI LẠI THỬ THÁCH 2</span>
+                            </button>
+                            <button class="btn-skip-sub-game btn-skip-trigger" type="button">
+                                <span>🏳️ Tôi quá yếu (Bỏ qua luôn) 🎂</span>
                             </button>
                         </div>
                     </div>
@@ -355,13 +371,16 @@
                     <!-- Flappy Canvas -->
                     <div class="flappy-canvas-wrapper">
                         <canvas id="flappy-canvas" width="480" height="340"></canvas>
-                        
+
                         <!-- Lớp phủ Flappy Game Over / Sẵn sàng -->
                         <div id="flappy-overlay" class="game-overlay-panel" style="display: none;">
                             <h3 id="flappy-overlay-title" class="overlay-title">CHẠM CỘT RỒI!</h3>
                             <p id="flappy-overlay-sub" class="overlay-sub">Chạm hoặc nhấn Space để bay lại nhé!</p>
                             <button id="btn-restart-flappy" class="btn-vintage-accent">
                                 <span>BAY LẠI TỪ ĐẦU</span>
+                            </button>
+                            <button class="btn-skip-sub-game btn-skip-trigger" type="button">
+                                <span>🏳️ Tôi quá yếu (Bỏ qua luôn) 🎂</span>
                             </button>
                         </div>
                     </div>
@@ -381,7 +400,8 @@
                     </div>
 
                     <div class="vintage-cake-wrapper">
-                        <div id="vintage-candle-wrapper" class="vintage-candle-box" title="Chạm vào ngọn nến để thổi tắt">
+                        <div id="vintage-candle-wrapper" class="vintage-candle-box"
+                            title="Chạm vào ngọn nến để thổi tắt">
                             <div id="vintage-candle-flame" class="vintage-flame"></div>
                             <div class="vintage-candle-wick"></div>
                             <div class="vintage-candle-body"></div>
@@ -440,9 +460,10 @@
                         <div class="flower-gallery-counter">
                             <span id="secret-gallery-idx">BỨC ẢNH 01</span> / 08
                         </div>
-                        
+
                         <div class="flower-polaroid-frame">
-                            <img id="secret-current-img" class="flower-polaroid-img" src="images/anh11.png" alt="Bông hoa đẹp nhất">
+                            <img id="secret-current-img" class="flower-polaroid-img" src="images/anh11.png"
+                                alt="Bông hoa đẹp nhất">
                             <div class="photo-vintage-overlay"></div>
                         </div>
 
@@ -457,7 +478,9 @@
                     </div>
 
                     <div class="conclusion-message">
-                        Hoa đẹp đến đâu rồi cũng có lúc tàn, nhưng nét duyên dáng, sự chân thành và nụ cười rạng rỡ của bạn luôn để lại ấn tượng đẹp nhất. Chúc bạn luôn tự tin, tỏa sáng và hạnh phúc theo cách của riêng mình nhé.
+                        Hoa đẹp đến đâu rồi cũng có lúc tàn, nhưng nét duyên dáng, sự chân thành và nụ cười rạng rỡ của
+                        bạn luôn để lại ấn tượng đẹp nhất. Chúc bạn luôn tự tin, tỏa sáng và hạnh phúc theo cách của
+                        riêng mình nhé.
                     </div>
 
                     <button id="btn-dismiss-secret-modal" class="btn-vintage-accent" style="margin-top: 18px;">

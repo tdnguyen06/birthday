@@ -55,6 +55,20 @@ class VintageQuestController {
         this.initFlappyGame();
         this.initCandleBlow();
         this.initSecretFlowerModal();
+        this.initSkipButtons();
+    }
+
+    initSkipButtons() {
+        const skipBtns = document.querySelectorAll('.btn-skip-trigger');
+        skipBtns.forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (window.birthdaySound) window.birthdaySound.playMagicChime();
+                if (window.fireworks) window.fireworks.burstConfetti(e.clientX, e.clientY, 30);
+                this.advanceToCandleStage();
+            });
+        });
     }
 
     // =============================================================

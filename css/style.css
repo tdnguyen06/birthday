@@ -809,6 +809,58 @@ body {
     font-size: 1rem;
 }
 
+.skip-quest-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 6px;
+    margin-bottom: 8px;
+}
+
+.btn-skip-games {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px dashed rgba(232, 170, 66, 0.5);
+    color: var(--vintage-amber);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 7px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.85;
+}
+
+.btn-skip-games:hover {
+    background: rgba(232, 170, 66, 0.15);
+    border-color: #ffd166;
+    color: #ffd166;
+    opacity: 1;
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 4px 12px rgba(232, 170, 66, 0.2);
+}
+
+.btn-skip-sub-game {
+    background: transparent;
+    border: 1px dashed rgba(255, 255, 255, 0.3);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    padding: 6px 14px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 6px;
+}
+
+.btn-skip-sub-game:hover {
+    color: var(--vintage-amber);
+    border-color: var(--vintage-amber);
+    background: rgba(232, 170, 66, 0.1);
+}
+
 .game-stage-box, .candle-stage-box {
     width: 100%;
     display: flex;
