@@ -115,7 +115,17 @@ class MainController {
             }
         }
 
-        // 5. Màn 4: Thư tay & Con dấu
+        // 5. Màn 3: Thử thách Catcher
+        if (CONFIG.catcherGame) {
+            const badge = document.getElementById('catcher-game-badge');
+            const title = document.getElementById('catcher-game-title');
+            const sub = document.getElementById('catcher-game-subtitle');
+            if (badge && CONFIG.catcherGame.badge) badge.textContent = CONFIG.catcherGame.badge;
+            if (title && CONFIG.catcherGame.title) title.textContent = CONFIG.catcherGame.title;
+            if (sub && CONFIG.catcherGame.subtitle) sub.textContent = CONFIG.catcherGame.subtitle;
+        }
+
+        // 6. Màn 4: Thư tay & Con dấu
         if (CONFIG.secretLetter) {
             const archiveCode = document.querySelector('.archive-code');
             const paperTitle = document.querySelector('.paper-title-main');
@@ -335,6 +345,9 @@ class MainController {
             toGamesBtn.addEventListener('click', () => {
                 if (window.birthdaySound) window.birthdaySound.playMechanicalClick();
                 this.showScreen('screen-games');
+                if (this.questController && typeof this.questController.startCatcherGame === 'function') {
+                    this.questController.startCatcherGame();
+                }
             });
         }
 
@@ -494,6 +507,9 @@ class MainController {
                 if (window.birthdaySound) window.birthdaySound.playMagicChime();
                 if (this.fireworks) this.fireworks.burstConfetti(e.clientX, e.clientY, 35);
                 this.showScreen('screen-games');
+                if (this.questController && typeof this.questController.startCatcherGame === 'function') {
+                    this.questController.startCatcherGame();
+                }
             });
         }
     }

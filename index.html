@@ -193,14 +193,51 @@
         </section>
 
         <!-- =================================================================
-             3. MÀN HÌNH 3: THỬ THÁCH BÍ MẬT - TÌM BÔNG HOA ĐẸP NHẤT (SCREEN GAMES)
+             3. MÀN HÌNH 3: CHUỖI 3 THỬ THÁCH MINIGAMES (SCREEN GAMES)
              ================================================================= -->
         <section id="screen-games" class="screen">
             <div class="vintage-panel quests-container">
-                <!-- Giai đoạn 1: Trò chơi Tìm Bông Hoa Đẹp Nhất -->
-                <div id="stage-flower" class="flower-stage-box">
+                <!-- Thanh tiến trình 3 Thử Thách Vintage -->
+                <div class="quest-status-bar">
+                    <div id="seal-1" class="seal-item active">
+                        <span class="seal-icon">🔒</span> 1: Hứng Quà
+                    </div>
+                    <div id="seal-2" class="seal-item">
+                        <span class="seal-icon">🔒</span> 2: Hoa Đẹp Nhất
+                    </div>
+                    <div id="seal-3" class="seal-item">
+                        <span class="seal-icon">🔒</span> 3: Thổi Nến
+                    </div>
+                </div>
+
+                <!-- Giai đoạn 1: Trò chơi Hứng Quà Sinh Nhật (Canvas Catcher) -->
+                <div id="stage-catcher" class="catcher-stage-box">
                     <div class="section-title-wrap">
-                        <div class="flower-badge">THỬ THÁCH BÍ MẬT</div>
+                        <div class="flower-badge" id="catcher-game-badge">THỬ THÁCH 1 / 3</div>
+                        <h2 class="vintage-heading" id="catcher-game-title">Hứng Quà Sinh Nhật 🎁</h2>
+                        <p class="vintage-sub" id="catcher-game-subtitle">
+                            Di chuyển chuột hoặc vuốt ngón tay để hứng đủ 10 món quà kỷ niệm nhé!
+                        </p>
+                    </div>
+
+                    <div class="flower-stats-bar">
+                        <div class="stat-box">
+                            <span class="stat-label">ĐIỂM SỐ:</span>
+                            <span id="catcher-score-num" class="stat-value">0 / 10</span>
+                        </div>
+                    </div>
+
+                    <!-- Khung Canvas Arcade Hứng Quà -->
+                    <div class="catcher-canvas-wrapper">
+                        <canvas id="catcher-canvas" width="480" height="300"></canvas>
+                        <div class="catcher-instruction-hint">Di chuột hoặc vuốt để điều khiển giỏ 🧺</div>
+                    </div>
+                </div>
+
+                <!-- Giai đoạn 2: Trò chơi Tìm Bông Hoa Đẹp Nhất -->
+                <div id="stage-flower" class="flower-stage-box" style="display: none;">
+                    <div class="section-title-wrap">
+                        <div class="flower-badge" id="flower-game-badge">THỬ THÁCH 2 / 3</div>
                         <h2 class="vintage-heading" id="flower-game-title">Tìm Bông Hoa Đẹp Nhất</h2>
                         <p class="vintage-sub" id="flower-game-subtitle">
                             Trong các loài hoa dưới đây, theo bạn bông hoa nào là đẹp nhất?

@@ -44,7 +44,7 @@ const CONFIG = {
         batteryBadge: "SP 0:00:24 ▮▮▮▯",
         heading: "Cuộn Phim Kỷ Niệm 35mm",
         sub: "Lưu giữ những khoảnh khắc bình dị và đáng nhớ nhất",
-        btnToGamesText: "MỞ THỬ THÁCH BÍ MẬT"
+        btnToGamesText: "MỞ CHUỖI 3 THỬ THÁCH"
     },
 
     // Danh sách 7 thước phim 35mm (Slideshow)
@@ -87,10 +87,21 @@ const CONFIG = {
     ],
 
     // -------------------------------------------------------------
-    // 4. MÀN 3 - GIAI ĐOẠN 1: TRÒ CHƠI BÍ MẬT (TÌM BÔNG HOA ĐẸP NHẤT)
+    // 4. MÀN 3 - THỬ THÁCH 1: GAME HỨNG QUÀ SINH NHẬT (CANVAS CATCHER)
+    // -------------------------------------------------------------
+    catcherGame: {
+        badge: "THỬ THÁCH 1 / 3",
+        title: "Hứng Quà Sinh Nhật 🎁",
+        subtitle: "Di chuyển chuột hoặc vuốt ngón tay để hứng đủ 10 món quà kỷ niệm nhé!",
+        targetScore: 10,
+        scoreLabel: "ĐIỂM SỐ:"
+    },
+
+    // -------------------------------------------------------------
+    // 5. MÀN 3 - THỬ THÁCH 2: TÌM BÔNG HOA ĐẸP NHẤT
     // -------------------------------------------------------------
     flowerGame: {
-        badge: "THỬ THÁCH BÍ MẬT",
+        badge: "THỬ THÁCH 2 / 3",
         title: "Tìm Bông Hoa Đẹp Nhất",
         subTitle: "Trong các loài hoa dưới đây, theo bạn bông hoa nào là đẹp nhất?",
         attemptsLabel: "LƯỢT CHỌN:",

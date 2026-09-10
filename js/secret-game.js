@@ -1,32 +1,223 @@
 // =================================================================
-// 🌸 SECRET GAME: TÌM BÔNG HOA ĐẸP NHẤT & ALBUM ẢNH ANH11 - ANH18
+// 🎞️ VINTAGE QUEST CONTROLLER: CHUỖI 3 THỬ THÁCH MINIGAMES
+// Stage 1: Hứng Quà (Canvas Catcher)
+// Stage 2: Tìm Bông Hoa Đẹp Nhất & Album Ảnh
+// Stage 3: Thổi Nến Bánh Kem Sinh Nhật
 // =================================================================
 
-class FlowerGameController {
+class VintageQuestController {
     constructor() {
-        this.attempts = 0;
+        this.currentStage = 1;
+
+        // Stage 1 Catcher vars
+        this.catcherCanvas = null;
+        this.catcherCtx = null;
+        this.catcherAnimId = null;
+        this.catcherScore = 0;
+        this.targetScore = (CONFIG.catcherGame && CONFIG.catcherGame.targetScore) || 10;
+        this.basket = { x: 200, y: 245, width: 70, height: 40 };
+        this.fallingItems = [];
+        this.itemDropTimer = 0;
+        this.isCatcherRunning = false;
+
+        // Stage 2 Flower vars
+        this.flowerAttempts = 0;
         this.currentPhotoIdx = 0;
-        this.isRevealed = false;
+        this.isFlowerRevealed = false;
+
+        // Stage 3 Candle vars
         this.isCandleBlown = false;
 
         this.init();
     }
 
     init() {
+        this.initCatcher();
         this.renderFlowerCards();
         this.initFlowerGallery();
         this.initCandleBlow();
     }
 
     // =============================================================
-    // 1. RENDER 12 THẺ BÔNG HOA
+    // 0. CẬP NHẬT TRẠNG THÁI PHONG ẤN / TIẾN TRÌNH
+    // =============================================================
+    updateSealStatus(sealIndex, status) {
+        const seal = document.getElementById(`seal-${sealIndex}`);
+        if (!seal) return;
+
+        if (status === 'active') {
+            seal.classList.add('active');
+            seal.classList.remove('unlocked');
+        } else if (status === 'unlocked') {
+            seal.classList.remove('active');
+            seal.classList.add('unlocked');
+            const labels = ['1: Đã Xong', '2: Đã Xong', '3: Đã Xong'];
+            seal.innerHTML = `<span class="seal-icon">🔓</span> ${labels[sealIndex - 1]}`;
+        }
+    }
+
+    // =============================================================
+    // 1. THỬ THÁCH 1: GAME HỨNG QUÀ SINH NHẬT (CANVAS CATCHER)
+    // =============================================================
+    initCatcher() {
+        this.catcherCanvas = document.getElementById('catcher-canvas');
+        if (!this.catcherCanvas) return;
+
+        this.catcherCtx = this.catcherCanvas.getContext('2d');
+        const canvas = this.catcherCanvas;
+
+        const moveBasket = (clientX) => {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const mouseX = (clientX - rect.left) * scaleX;
+            this.basket.x = Math.max(0, Math.min(canvas.width - this.basket.width, mouseX - this.basket.width / 2));
+        };
+
+        canvas.addEventListener('mousemove', (e) => moveBasket(e.clientX));
+        canvas.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) {
+                moveBasket(e.touches[0].clientX);
+            }
+            e.preventDefault();
+        }, { passive: false });
+
+        canvas.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 0) {
+                moveBasket(e.touches[0].clientX);
+            }
+        }, { passive: false });
+
+        this.updateCatcherScore();
+    }
+
+    startCatcherGame() {
+        if (!this.catcherCanvas) return;
+        this.catcherScore = 0;
+        this.fallingItems = [];
+        this.itemDropTimer = 0;
+        this.isCatcherRunning = true;
+        this.updateCatcherScore();
+        this.updateSealStatus(1, 'active');
+
+        if (this.catcherAnimId) cancelAnimationFrame(this.catcherAnimId);
+        this.runCatcherLoop();
+    }
+
+    updateCatcherScore() {
+        const scoreEl = document.getElementById('catcher-score-num');
+        if (scoreEl) {
+            scoreEl.textContent = `${this.catcherScore} / ${this.targetScore}`;
+        }
+    }
+
+    runCatcherLoop() {
+        if (!this.isCatcherRunning || !this.catcherCtx) return;
+        const ctx = this.catcherCtx;
+        const canvas = this.catcherCanvas;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Sinh vật phẩm rơi đều đặn
+        this.itemDropTimer++;
+        if (this.itemDropTimer % 32 === 0 && this.catcherScore < this.targetScore) {
+            const emojis = ['🎁', '💖', '🎂', '⭐', '💎', '🌸', '🍬', '✨'];
+            this.fallingItems.push({
+                x: Math.random() * (canvas.width - 50) + 25,
+                y: -25,
+                speed: Math.random() * 2 + 2.2,
+                emoji: emojis[Math.floor(Math.random() * emojis.length)],
+                size: 28,
+                rotation: (Math.random() - 0.5) * 0.4
+            });
+        }
+
+        // Vẽ giỏ hứng phong cách Vintage Arcade
+        ctx.save();
+        ctx.font = '38px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('🧺', this.basket.x + this.basket.width / 2, this.basket.y + 18);
+        ctx.restore();
+
+        // Vẽ và kiểm tra va chạm
+        for (let i = this.fallingItems.length - 1; i >= 0; i--) {
+            const item = this.fallingItems[i];
+            item.y += item.speed;
+
+            ctx.save();
+            ctx.font = `${item.size}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(item.emoji, item.x, item.y);
+            ctx.restore();
+
+            // Kiểm tra va chạm với miệng giỏ
+            if (
+                item.y >= this.basket.y - 10 &&
+                item.y <= this.basket.y + this.basket.height &&
+                item.x >= this.basket.x - 12 &&
+                item.x <= this.basket.x + this.basket.width + 12
+            ) {
+                this.catcherScore++;
+                this.updateCatcherScore();
+
+                if (window.birthdaySound) window.birthdaySound.playPop();
+                if (window.fireworks) {
+                    window.fireworks.burstConfetti(item.x, item.y, 15);
+                }
+
+                this.fallingItems.splice(i, 1);
+
+                // Hoàn thành Thử thách 1 -> Chuyển sang Thử thách 2
+                if (this.catcherScore >= this.targetScore) {
+                    this.isCatcherRunning = false;
+                    cancelAnimationFrame(this.catcherAnimId);
+
+                    this.updateSealStatus(1, 'unlocked');
+                    if (window.birthdaySound) window.birthdaySound.playMagicChime();
+                    if (window.fireworks) {
+                        window.fireworks.burstConfetti();
+                        window.fireworks.celebrateSequence(2200);
+                    }
+
+                    setTimeout(() => {
+                        this.advanceToStage2();
+                    }, 1000);
+                    return;
+                }
+                continue;
+            }
+
+            // Xóa item khi rơi khỏi màn hình
+            if (item.y > canvas.height + 30) {
+                this.fallingItems.splice(i, 1);
+            }
+        }
+
+        this.catcherAnimId = requestAnimationFrame(() => this.runCatcherLoop());
+    }
+
+    advanceToStage2() {
+        const stage1 = document.getElementById('stage-catcher');
+        const stage2 = document.getElementById('stage-flower');
+
+        if (stage1) stage1.style.display = 'none';
+        if (stage2) {
+            stage2.style.display = 'flex';
+            stage2.scrollIntoView({ behavior: 'smooth' });
+        }
+        this.updateSealStatus(2, 'active');
+    }
+
+    // =============================================================
+    // 2. THỬ THÁCH 2: TRÒ CHƠI TÌM BÔNG HOA ĐẸP NHẤT & ALBUM ẢNH
     // =============================================================
     renderFlowerCards() {
         const grid = document.getElementById('flower-cards-grid');
         if (!grid || !CONFIG.flowerGame || !CONFIG.flowerGame.flowers) return;
 
         grid.innerHTML = '';
-        CONFIG.flowerGame.flowers.forEach((flower, idx) => {
+        CONFIG.flowerGame.flowers.forEach((flower) => {
             const card = document.createElement('div');
             card.className = 'flower-card';
             card.setAttribute('data-id', flower.id);
@@ -36,7 +227,7 @@ class FlowerGameController {
                     <h4 class="flower-name">${flower.name}</h4>
                     <p class="flower-desc">${flower.desc}</p>
                 </div>
-                <div class="flower-select-tag">CHỌN</div>
+                <div class="flower-select-tag">${CONFIG.flowerGame.selectTag || 'CHỌN'}</div>
             `;
 
             card.addEventListener('click', (e) => this.handleFlowerClick(card, flower, e));
@@ -45,22 +236,22 @@ class FlowerGameController {
     }
 
     handleFlowerClick(card, flower, event) {
-        if (this.isRevealed) return;
+        if (this.isFlowerRevealed) return;
 
-        this.attempts++;
+        this.flowerAttempts++;
         if (window.birthdaySound) window.birthdaySound.playMechanicalClick();
 
         // Hiệu ứng rung thẻ
         card.classList.add('picked-shake');
         setTimeout(() => card.classList.remove('picked-shake'), 450);
 
-        // Bắn hoa rơi tại vị trí click
-        this.spawnFlowerBurst(event.clientX, event.clientY);
+        // Bắn hiệu ứng hoa rơi
+        this.spawnFlowerBurst(event ? event.clientX : null, event ? event.clientY : null);
 
         // Cập nhật số lượt chọn
         const attemptsNum = document.getElementById('flower-attempts-num');
         if (attemptsNum) {
-            attemptsNum.textContent = `${Math.min(3, this.attempts)} / 3`;
+            attemptsNum.textContent = `${Math.min(3, this.flowerAttempts)} / 3`;
         }
 
         // Hiện thông báo phản hồi
@@ -71,27 +262,24 @@ class FlowerGameController {
             "Vẫn chưa đúng rồi. Thật ra không có loài hoa tự nhiên nào ở đây là đẹp nhất cả..."
         ];
 
-        const currentMsg = failMsgs[Math.min(this.attempts - 1, failMsgs.length - 1)];
+        const currentMsg = failMsgs[Math.min(this.flowerAttempts - 1, failMsgs.length - 1)];
         if (feedbackBox) {
             feedbackBox.textContent = currentMsg;
             feedbackBox.style.display = 'block';
             feedbackBox.classList.remove('feedback-anim');
-            void feedbackBox.offsetWidth; // Reflow
+            void feedbackBox.offsetWidth;
             feedbackBox.classList.add('feedback-anim');
         }
 
-        // Sau 3 lần chọn -> Kích hoạt bí mật bất ngờ!
-        if (this.attempts >= 3) {
-            this.isRevealed = true;
+        // Sau 3 lần chọn -> Mở màn bật mí bí mật
+        if (this.flowerAttempts >= 3) {
+            this.isFlowerRevealed = true;
             setTimeout(() => {
                 this.revealFlowerConclusion();
             }, 1200);
         }
     }
 
-    // =============================================================
-    // 2. MÀN BẬT MÍ: BẠN MỚI CHÍNH LÀ BÔNG HOA ĐẸP NHẤT
-    // =============================================================
     revealFlowerConclusion() {
         const grid = document.getElementById('flower-cards-grid');
         const feedbackBox = document.getElementById('flower-feedback-box');
@@ -124,12 +312,13 @@ class FlowerGameController {
             }
         }
 
+        this.updateSealStatus(2, 'unlocked');
+
         if (conclusionCard) {
             conclusionCard.style.display = 'flex';
             conclusionCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        // Bùng nổ hiệu ứng ăn mừng
         if (window.birthdaySound) window.birthdaySound.playMagicChime();
         if (window.fireworks) {
             window.fireworks.burstConfetti();
@@ -137,13 +326,9 @@ class FlowerGameController {
         }
         this.spawnFlowerShower(50);
 
-        // Hiển thị ảnh đầu tiên của album
         this.renderGalleryPhoto(0);
     }
 
-    // =============================================================
-    // 3. ALBUM BỘ ẢNH TỪ ANH11 -> ANH18
-    // =============================================================
     initFlowerGallery() {
         const prevBtn = document.getElementById('btn-flower-prev');
         const nextBtn = document.getElementById('btn-flower-next');
@@ -155,7 +340,6 @@ class FlowerGameController {
             "images/anh15.png", "images/anh16.png", "images/anh17.png", "images/anh18.png"
         ];
 
-        // Tạo dots
         if (dotsContainer) {
             dotsContainer.innerHTML = '';
             images.forEach((_, idx) => {
@@ -169,7 +353,6 @@ class FlowerGameController {
             });
         }
 
-        // Tạo thumbnails
         if (thumbsContainer) {
             thumbsContainer.innerHTML = '';
             images.forEach((imgSrc, idx) => {
@@ -231,8 +414,6 @@ class FlowerGameController {
                     imgEl.src = src.replace('.png', '.jpg');
                 } else if (src && src.endsWith('.jpg')) {
                     imgEl.src = src.replace('.jpg', '.jpeg');
-                } else if (src && src.endsWith('.jpeg')) {
-                    imgEl.src = src.replace('.jpeg', '.jfif');
                 }
             };
             setTimeout(() => {
@@ -246,7 +427,7 @@ class FlowerGameController {
     }
 
     // =============================================================
-    // 4. THỔI NẾN BÁNH KEM & CHUYỂN SANG BỨC THƯ
+    // 3. THỬ THÁCH 3: BÁNH KEM & THỔI NẾN ƯỚC NGUYỆN
     // =============================================================
     initCandleBlow() {
         const toCandleBtn = document.getElementById('btn-to-candle-stage');
@@ -273,9 +454,10 @@ class FlowerGameController {
                 if (window.birthdaySound) window.birthdaySound.playMagicChime();
                 if (stageFlower) stageFlower.style.display = 'none';
                 if (stageCandle) {
-                    stageCandle.style.display = 'block';
+                    stageCandle.style.display = 'flex';
                     stageCandle.scrollIntoView({ behavior: 'smooth' });
                 }
+                this.updateSealStatus(3, 'active');
                 if (window.fireworks) window.fireworks.launchFirework();
             });
         }
@@ -287,10 +469,12 @@ class FlowerGameController {
 
                 if (flame) flame.classList.add('extinguished');
 
-                // Tạo khói
+                // Tạo khói nến
                 const smoke = document.createElement('div');
                 smoke.className = 'candle-smoke-fx';
                 candleWrapper.appendChild(smoke);
+
+                this.updateSealStatus(3, 'unlocked');
 
                 if (window.birthdaySound) window.birthdaySound.playMagicChime();
                 if (window.fireworks) {
@@ -356,6 +540,6 @@ class FlowerGameController {
     }
 }
 
-// Khởi tạo khi load
-window.VintageQuestController = FlowerGameController;
-window.FlowerGameController = FlowerGameController;
+// Khởi tạo toàn cục
+window.VintageQuestController = VintageQuestController;
+window.FlowerGameController = VintageQuestController;
