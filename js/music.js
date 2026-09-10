@@ -41,6 +41,113 @@ class BirthdaySoundEngine {
         osc.stop(this.ctx.currentTime + duration);
     }
 
+    // Âm thanh đàn Piano ấm áp, chân thực
+    playPianoNote(noteIndex = 0, duration = 0.8) {
+        this.init();
+        if (!this.ctx) return;
+        const freqs = [
+            261.63, // 0: C4 (Đô)
+            293.66, // 1: D4 (Rê)
+            329.63, // 2: E4 (Mi)
+            349.23, // 3: F4 (Fa)
+            392.00, // 4: G4 (Sol)
+            440.00, // 5: A4 (La)
+            493.88, // 6: B4 (Si)
+            523.25, // 7: C5 (Đô cao)
+            587.33, // 8: D5 (Rê cao)
+            659.25  // 9: E5 (Mi cao)
+        ];
+        const freq = typeof noteIndex === 'number' ? (freqs[noteIndex % freqs.length] || 261.63) : noteIndex;
+        const now = this.ctx.currentTime;
+
+        // Âm cơ bản (fundamental)
+        const osc1 = this.ctx.createOscillator();
+        const gain1 = this.ctx.createGain();
+        osc1.type = 'triangle';
+        osc1.frequency.setValueAtTime(freq, now);
+        gain1.gain.setValueAtTime(0.28, now);
+        gain1.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+        osc1.connect(gain1);
+        gain1.connect(this.ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + duration);
+
+        // Họa âm 2 (2nd harmonic)
+        const osc2 = this.ctx.createOscillator();
+        const gain2 = this.ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(freq * 2, now);
+        gain2.gain.setValueAtTime(0.12, now);
+        gain2.gain.exponentialRampToValueAtTime(0.0001, now + duration * 0.6);
+        osc2.connect(gain2);
+        gain2.connect(this.ctx.destination);
+        osc2.start(now);
+        osc2.stop(now + duration * 0.6);
+    }
+
+    // Tiếng vỗ cánh Flappy Bird (Flap Sound)
+    playFlap() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(320, now);
+        osc.frequency.exponentialRampToValueAtTime(580, now + 0.08);
+
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.09);
+    }
+
+    // Tiếng ăn điểm Flappy Bird (Point Chime)
+    playPoint() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(784, now); // G5
+        osc.frequency.setValueAtTime(1046.5, now + 0.07); // C6
+
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.2);
+    }
+
+    // Tiếng va chạm Flappy Bird (Hit Thud)
+    playHit() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(120, now);
+        osc.frequency.exponentialRampToValueAtTime(30, now + 0.15);
+
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.15);
+    }
+
     // Âm thanh bong bóng / bắt quà pop nhẹ (Bubble Pop / Item Catch)
     playPop() {
         this.init();

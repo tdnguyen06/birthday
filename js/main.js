@@ -115,14 +115,32 @@ class MainController {
             }
         }
 
-        // 5. Màn 3: Thử thách Catcher
-        if (CONFIG.catcherGame) {
-            const badge = document.getElementById('catcher-game-badge');
-            const title = document.getElementById('catcher-game-title');
-            const sub = document.getElementById('catcher-game-subtitle');
-            if (badge && CONFIG.catcherGame.badge) badge.textContent = CONFIG.catcherGame.badge;
-            if (title && CONFIG.catcherGame.title) title.textContent = CONFIG.catcherGame.title;
-            if (sub && CONFIG.catcherGame.subtitle) sub.textContent = CONFIG.catcherGame.subtitle;
+        // 5. Màn 3: Thử thách Minigames
+        if (CONFIG.pianoGame) {
+            const badge = document.getElementById('piano-game-badge');
+            const title = document.getElementById('piano-game-title');
+            const sub = document.getElementById('piano-game-subtitle');
+            if (badge && CONFIG.pianoGame.badge) badge.textContent = CONFIG.pianoGame.badge;
+            if (title && CONFIG.pianoGame.title) title.textContent = CONFIG.pianoGame.title;
+            if (sub && CONFIG.pianoGame.subtitle) sub.textContent = CONFIG.pianoGame.subtitle;
+        }
+
+        if (CONFIG.memoryGame) {
+            const badge = document.getElementById('memory-game-badge');
+            const title = document.getElementById('memory-game-title');
+            const sub = document.getElementById('memory-game-subtitle');
+            if (badge && CONFIG.memoryGame.badge) badge.textContent = CONFIG.memoryGame.badge;
+            if (title && CONFIG.memoryGame.title) title.textContent = CONFIG.memoryGame.title;
+            if (sub && CONFIG.memoryGame.subtitle) sub.textContent = CONFIG.memoryGame.subtitle;
+        }
+
+        if (CONFIG.flappyGame) {
+            const badge = document.getElementById('flappy-game-badge');
+            const title = document.getElementById('flappy-game-title');
+            const sub = document.getElementById('flappy-game-subtitle');
+            if (badge && CONFIG.flappyGame.badge) badge.textContent = CONFIG.flappyGame.badge;
+            if (title && CONFIG.flappyGame.title) title.textContent = CONFIG.flappyGame.title;
+            if (sub && CONFIG.flappyGame.subtitle) sub.textContent = CONFIG.flappyGame.subtitle;
         }
 
         // 6. Màn 4: Thư tay & Con dấu
@@ -345,8 +363,8 @@ class MainController {
             toGamesBtn.addEventListener('click', () => {
                 if (window.birthdaySound) window.birthdaySound.playMechanicalClick();
                 this.showScreen('screen-games');
-                if (this.questController && typeof this.questController.startCatcherGame === 'function') {
-                    this.questController.startCatcherGame();
+                if (this.questController && typeof this.questController.startPianoGame === 'function') {
+                    this.questController.startPianoGame();
                 }
             });
         }
@@ -506,9 +524,8 @@ class MainController {
             starBtn.addEventListener('click', (e) => {
                 if (window.birthdaySound) window.birthdaySound.playMagicChime();
                 if (this.fireworks) this.fireworks.burstConfetti(e.clientX, e.clientY, 35);
-                this.showScreen('screen-games');
-                if (this.questController && typeof this.questController.startCatcherGame === 'function') {
-                    this.questController.startCatcherGame();
+                if (this.questController && typeof this.questController.openSecretFlowerModal === 'function') {
+                    this.questController.openSecretFlowerModal();
                 }
             });
         }

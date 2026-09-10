@@ -1,45 +1,64 @@
 // =================================================================
-// 🎞️ VINTAGE QUEST CONTROLLER: CHUỖI 3 THỬ THÁCH MINIGAMES
-// Stage 1: Hứng Quà (Canvas Catcher)
-// Stage 2: Tìm Bông Hoa Đẹp Nhất & Album Ảnh
-// Stage 3: Thổi Nến Bánh Kem Sinh Nhật
+// 🎞️ VINTAGE QUEST CONTROLLER & SECRET GAME CONTROLLER
+// Stage 1: Piano Tiles (Bấm nốt nhạc piano rơi, hụt quá 5 lần thì thua)
+// Stage 2: Memory Synth (Nhớ nốt: V1: 6 nốt, V2: 8 nốt, V3: 10 nốt, sai 3 lần loại)
+// Stage 3: Flappy Melody (Chơi như Flappy Bird, bay qua 10 cột chướng ngại vật)
+// Stage 4: Thổi nến sinh nhật & Mở khóa thư
+// Secret Game: Bông hoa đẹp nhất (Kích hoạt khi ấn ngôi sao dưới góc trái)
 // =================================================================
 
 class VintageQuestController {
     constructor() {
         this.currentStage = 1;
 
-        // Stage 1 Catcher vars
-        this.catcherCanvas = null;
-        this.catcherCtx = null;
-        this.catcherAnimId = null;
-        this.catcherScore = 0;
-        this.targetScore = (CONFIG.catcherGame && CONFIG.catcherGame.targetScore) || 10;
-        this.basket = { x: 200, y: 245, width: 70, height: 40 };
-        this.fallingItems = [];
-        this.itemDropTimer = 0;
-        this.isCatcherRunning = false;
+        // Stage 1: Piano Tiles vars
+        this.pianoScore = 0;
+        this.pianoTarget = (CONFIG.pianoGame && CONFIG.pianoGame.targetScore) || 20;
+        this.pianoMaxMisses = (CONFIG.pianoGame && CONFIG.pianoGame.maxMisses) || 5;
+        this.pianoMisses = 0;
+        this.pianoTiles = [];
+        this.isPianoRunning = false;
+        this.pianoAnimId = null;
+        this.pianoSpawnTimer = 0;
+        this.pianoSpeed = 3.2;
 
-        // Stage 2 Flower vars
-        this.flowerAttempts = 0;
-        this.currentPhotoIdx = 0;
-        this.isFlowerRevealed = false;
+        // Stage 2: Music Memory vars
+        this.memoryRounds = (CONFIG.memoryGame && CONFIG.memoryGame.rounds) || [6, 8, 10];
+        this.memoryCurrentRoundIdx = 0;
+        this.memoryMaxErrors = (CONFIG.memoryGame && CONFIG.memoryGame.maxErrors) || 3;
+        this.memoryErrors = 0;
+        this.memorySequence = [];
+        this.userSequence = [];
+        this.isMachinePlaying = false;
+        this.isMemoryAcceptingInput = false;
 
-        // Stage 3 Candle vars
+        // Stage 3: Flappy Bird vars
+        this.flappyCanvas = null;
+        this.flappyCtx = null;
+        this.flappyAnimId = null;
+        this.isFlappyRunning = false;
+        this.flappyScore = 0;
+        this.flappyTarget = (CONFIG.flappyGame && CONFIG.flappyGame.targetScore) || 10;
+        this.bird = { x: 80, y: 150, vy: 0, gravity: 0.38, jump: -6.5, radius: 16 };
+        this.pipes = [];
+        this.pipeSpawnTimer = 0;
+
+        // Stage 4: Candle vars
         this.isCandleBlown = false;
 
         this.init();
     }
 
     init() {
-        this.initCatcher();
-        this.renderFlowerCards();
-        this.initFlowerGallery();
+        this.initPianoGame();
+        this.initMemoryGame();
+        this.initFlappyGame();
         this.initCandleBlow();
+        this.initSecretFlowerModal();
     }
 
     // =============================================================
-    // 0. CẬP NHẬT TRẠNG THÁI PHONG ẤN / TIẾN TRÌNH
+    // 0. CẬP NHẬT TRẠNG THÁI TIẾN TRÌNH / PHONG ẤN
     // =============================================================
     updateSealStatus(sealIndex, status) {
         const seal = document.getElementById(`seal-${sealIndex}`);
@@ -51,416 +70,740 @@ class VintageQuestController {
         } else if (status === 'unlocked') {
             seal.classList.remove('active');
             seal.classList.add('unlocked');
-            const labels = ['1: Đã Xong', '2: Đã Xong', '3: Đã Xong'];
+            const labels = ['1: Piano Xong', '2: Nhớ Nốt Xong', '3: Flappy Xong'];
             seal.innerHTML = `<span class="seal-icon">🔓</span> ${labels[sealIndex - 1]}`;
         }
     }
 
     // =============================================================
-    // 1. THỬ THÁCH 1: GAME HỨNG QUÀ SINH NHẬT (CANVAS CATCHER)
+    // 1. GAME 1: PIANO TILES (BẤM NỐT RƠI)
     // =============================================================
-    initCatcher() {
-        this.catcherCanvas = document.getElementById('catcher-canvas');
-        if (!this.catcherCanvas) return;
+    initPianoGame() {
+        const board = document.getElementById('piano-board');
+        const restartBtn = document.getElementById('btn-restart-piano');
+        if (!board) return;
 
-        this.catcherCtx = this.catcherCanvas.getContext('2d');
-        const canvas = this.catcherCanvas;
+        // Click / Touch trên các lane
+        const lanes = board.querySelectorAll('.piano-lane');
+        lanes.forEach((lane) => {
+            const laneIdx = parseInt(lane.getAttribute('data-lane'), 10);
 
-        const moveBasket = (clientX) => {
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const mouseX = (clientX - rect.left) * scaleX;
-            this.basket.x = Math.max(0, Math.min(canvas.width - this.basket.width, mouseX - this.basket.width / 2));
-        };
+            const handleLaneAction = (e) => {
+                e.preventDefault();
+                if (!this.isPianoRunning) return;
+                this.handlePianoInput(laneIdx);
+            };
 
-        canvas.addEventListener('mousemove', (e) => moveBasket(e.clientX));
-        canvas.addEventListener('touchmove', (e) => {
-            if (e.touches.length > 0) {
-                moveBasket(e.touches[0].clientX);
+            lane.addEventListener('mousedown', handleLaneAction);
+            lane.addEventListener('touchstart', handleLaneAction, { passive: false });
+        });
+
+        // Bàn phím máy tính: D, F, J, K hoặc 1, 2, 3, 4
+        window.addEventListener('keydown', (e) => {
+            const stage = document.getElementById('stage-piano');
+            if (!this.isPianoRunning || !stage || stage.style.display === 'none') return;
+
+            const keyMap = {
+                'd': 0, 'D': 0, '1': 0,
+                'f': 1, 'F': 1, '2': 1,
+                'j': 2, 'J': 2, '3': 2,
+                'k': 3, 'K': 3, '4': 3
+            };
+
+            if (keyMap[e.key] !== undefined) {
+                e.preventDefault();
+                this.handlePianoInput(keyMap[e.key]);
             }
-            e.preventDefault();
-        }, { passive: false });
+        });
 
-        canvas.addEventListener('touchstart', (e) => {
-            if (e.touches.length > 0) {
-                moveBasket(e.touches[0].clientX);
-            }
-        }, { passive: false });
-
-        this.updateCatcherScore();
-    }
-
-    startCatcherGame() {
-        if (!this.catcherCanvas) return;
-        this.catcherScore = 0;
-        this.fallingItems = [];
-        this.itemDropTimer = 0;
-        this.isCatcherRunning = true;
-        this.updateCatcherScore();
-        this.updateSealStatus(1, 'active');
-
-        if (this.catcherAnimId) cancelAnimationFrame(this.catcherAnimId);
-        this.runCatcherLoop();
-    }
-
-    updateCatcherScore() {
-        const scoreEl = document.getElementById('catcher-score-num');
-        if (scoreEl) {
-            scoreEl.textContent = `${this.catcherScore} / ${this.targetScore}`;
-        }
-    }
-
-    runCatcherLoop() {
-        if (!this.isCatcherRunning || !this.catcherCtx) return;
-        const ctx = this.catcherCtx;
-        const canvas = this.catcherCanvas;
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Sinh vật phẩm rơi đều đặn
-        this.itemDropTimer++;
-        if (this.itemDropTimer % 32 === 0 && this.catcherScore < this.targetScore) {
-            const emojis = ['🎁', '💖', '🎂', '⭐', '💎', '🌸', '🍬', '✨'];
-            this.fallingItems.push({
-                x: Math.random() * (canvas.width - 50) + 25,
-                y: -25,
-                speed: Math.random() * 2 + 2.2,
-                emoji: emojis[Math.floor(Math.random() * emojis.length)],
-                size: 28,
-                rotation: (Math.random() - 0.5) * 0.4
+        if (restartBtn) {
+            restartBtn.addEventListener('click', () => {
+                if (window.birthdaySound) window.birthdaySound.playMechanicalClick();
+                this.startPianoGame();
             });
         }
+    }
 
-        // Vẽ giỏ hứng phong cách Vintage Arcade
-        ctx.save();
-        ctx.font = '38px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('🧺', this.basket.x + this.basket.width / 2, this.basket.y + 18);
-        ctx.restore();
+    startPianoGame() {
+        this.currentStage = 1;
+        const stage1 = document.getElementById('stage-piano');
+        const stage2 = document.getElementById('stage-memory');
+        const stage3 = document.getElementById('stage-flappy');
+        const stageCandle = document.getElementById('stage-candle');
+        const overlay = document.getElementById('piano-overlay');
 
-        // Vẽ và kiểm tra va chạm
-        for (let i = this.fallingItems.length - 1; i >= 0; i--) {
-            const item = this.fallingItems[i];
-            item.y += item.speed;
+        if (stage1) stage1.style.display = 'flex';
+        if (stage2) stage2.style.display = 'none';
+        if (stage3) stage3.style.display = 'none';
+        if (stageCandle) stageCandle.style.display = 'none';
+        if (overlay) overlay.style.display = 'none';
 
-            ctx.save();
-            ctx.font = `${item.size}px sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(item.emoji, item.x, item.y);
-            ctx.restore();
+        // Clear tiles cũ
+        this.clearAllPianoTileElements();
+        this.pianoTiles = [];
+        this.pianoScore = 0;
+        this.pianoMisses = 0;
+        this.pianoSpawnTimer = 0;
+        this.isPianoRunning = true;
 
-            // Kiểm tra va chạm với miệng giỏ
-            if (
-                item.y >= this.basket.y - 10 &&
-                item.y <= this.basket.y + this.basket.height &&
-                item.x >= this.basket.x - 12 &&
-                item.x <= this.basket.x + this.basket.width + 12
-            ) {
-                this.catcherScore++;
-                this.updateCatcherScore();
+        this.updatePianoUI();
+        this.updateSealStatus(1, 'active');
 
-                if (window.birthdaySound) window.birthdaySound.playPop();
-                if (window.fireworks) {
-                    window.fireworks.burstConfetti(item.x, item.y, 15);
-                }
+        if (this.pianoAnimId) cancelAnimationFrame(this.pianoAnimId);
+        this.runPianoLoop();
+    }
 
-                this.fallingItems.splice(i, 1);
+    clearAllPianoTileElements() {
+        const board = document.getElementById('piano-board');
+        if (!board) return;
+        board.querySelectorAll('.falling-piano-tile').forEach(t => t.remove());
+    }
 
-                // Hoàn thành Thử thách 1 -> Chuyển sang Thử thách 2
-                if (this.catcherScore >= this.targetScore) {
-                    this.isCatcherRunning = false;
-                    cancelAnimationFrame(this.catcherAnimId);
+    updatePianoUI() {
+        const scoreEl = document.getElementById('piano-score-num');
+        const livesEl = document.getElementById('piano-lives-display');
 
-                    this.updateSealStatus(1, 'unlocked');
-                    if (window.birthdaySound) window.birthdaySound.playMagicChime();
-                    if (window.fireworks) {
-                        window.fireworks.burstConfetti();
-                        window.fireworks.celebrateSequence(2200);
-                    }
+        if (scoreEl) {
+            scoreEl.textContent = `${this.pianoScore} / ${this.pianoTarget}`;
+        }
 
-                    setTimeout(() => {
-                        this.advanceToStage2();
-                    }, 1000);
-                    return;
-                }
-                continue;
+        if (livesEl) {
+            const remaining = Math.max(0, this.pianoMaxMisses - this.pianoMisses);
+            let hearts = '';
+            for (let i = 0; i < remaining; i++) hearts += '❤️';
+            for (let i = remaining; i < this.pianoMaxMisses; i++) hearts += '🖤';
+            livesEl.textContent = hearts;
+        }
+    }
+
+    handlePianoInput(laneIdx) {
+        if (!this.isPianoRunning) return;
+
+        // Visual flash trên lane
+        const laneEl = document.querySelector(`.piano-lane[data-lane="${laneIdx}"]`);
+        if (laneEl) {
+            laneEl.classList.add('lane-hit-active');
+            setTimeout(() => laneEl.classList.remove('lane-hit-active'), 160);
+        }
+
+        // Tìm nốt nằm trong vùng nhấn (hit zone)
+        // Hit zone: từ 65% đến 98% chiều cao board
+        const hitCandidateIdx = this.pianoTiles.findIndex(t => t.lane === laneIdx && t.topPct >= 55 && t.topPct <= 98 && !t.hit);
+
+        if (hitCandidateIdx !== -1) {
+            // Đánh trúng nốt
+            const tile = this.pianoTiles[hitCandidateIdx];
+            tile.hit = true;
+            if (tile.el) {
+                tile.el.classList.add('tile-popped');
+                setTimeout(() => { if (tile.el) tile.el.remove(); }, 200);
+            }
+            this.pianoTiles.splice(hitCandidateIdx, 1);
+
+            this.pianoScore++;
+            this.updatePianoUI();
+
+            // Phát âm thanh piano tương ứng lane
+            const noteIndexMap = [0, 2, 4, 7]; // C4, E4, G4, C5
+            if (window.birthdaySound && typeof window.birthdaySound.playPianoNote === 'function') {
+                window.birthdaySound.playPianoNote(noteIndexMap[laneIdx] || 0);
             }
 
-            // Xóa item khi rơi khỏi màn hình
-            if (item.y > canvas.height + 30) {
-                this.fallingItems.splice(i, 1);
+            // Hiệu ứng pháo hoa nhỏ
+            if (window.fireworks && typeof window.fireworks.burstConfetti === 'function') {
+                if (laneEl) {
+                    const rect = laneEl.getBoundingClientRect();
+                    window.fireworks.burstConfetti(rect.left + rect.width / 2, rect.bottom - 40, 8);
+                }
+            }
+
+            // Kiểm tra chiến thắng Game 1
+            if (this.pianoScore >= this.pianoTarget) {
+                this.isPianoRunning = false;
+                cancelAnimationFrame(this.pianoAnimId);
+                this.updateSealStatus(1, 'unlocked');
+
+                if (window.birthdaySound) window.birthdaySound.playMagicChime();
+                if (window.fireworks) {
+                    window.fireworks.burstConfetti();
+                    window.fireworks.celebrateSequence(2200);
+                }
+
+                setTimeout(() => {
+                    this.advanceToStage2();
+                }, 1100);
+            }
+        } else {
+            // Bấm hụt / Bấm trượt vào làn trống
+            this.handlePianoMiss("misclick");
+        }
+    }
+
+    handlePianoMiss(reason = "miss") {
+        if (!this.isPianoRunning) return;
+
+        this.pianoMisses++;
+        this.updatePianoUI();
+
+        if (window.birthdaySound && typeof window.birthdaySound.playWrongBuzz === 'function') {
+            window.birthdaySound.playWrongBuzz();
+        }
+
+        const board = document.getElementById('piano-board');
+        if (board) {
+            board.classList.add('board-shake-error');
+            setTimeout(() => board.classList.remove('board-shake-error'), 350);
+        }
+
+        // Nếu quá số lần cho phép -> Thua
+        if (this.pianoMisses >= this.pianoMaxMisses) {
+            this.isPianoRunning = false;
+            cancelAnimationFrame(this.pianoAnimId);
+
+            const overlay = document.getElementById('piano-overlay');
+            const overlayTitle = document.getElementById('piano-overlay-title');
+            const overlaySub = document.getElementById('piano-overlay-sub');
+
+            if (overlayTitle) overlayTitle.textContent = "HẾT MẠNG RỒI!";
+            if (overlaySub) overlaySub.textContent = `Bạn đã bấm hụt hoặc để rơi ${this.pianoMaxMisses} nốt. Hãy thử lại nhé!`;
+            if (overlay) overlay.style.display = 'flex';
+        }
+    }
+
+    runPianoLoop() {
+        if (!this.isPianoRunning) return;
+
+        const board = document.getElementById('piano-board');
+        if (!board) return;
+
+        this.pianoSpawnTimer++;
+
+        // Tạo nốt rơi đều đặn (mỗi 42 frames ~ 0.7s)
+        if (this.pianoSpawnTimer % 38 === 0 && this.pianoScore < this.pianoTarget) {
+            const lane = Math.floor(Math.random() * 4);
+            const laneEl = document.querySelector(`.piano-lane[data-lane="${lane}"]`);
+
+            if (laneEl) {
+                const tileEl = document.createElement('div');
+                tileEl.className = `falling-piano-tile tile-lane-${lane}`;
+                tileEl.innerHTML = `<span>♪</span>`;
+                tileEl.style.top = `-18%`;
+                laneEl.appendChild(tileEl);
+
+                this.pianoTiles.push({
+                    lane: lane,
+                    topPct: -18,
+                    speed: 1.15 + (this.pianoScore / this.pianoTarget) * 0.45,
+                    el: tileEl,
+                    hit: false
+                });
             }
         }
 
-        this.catcherAnimId = requestAnimationFrame(() => this.runCatcherLoop());
+        // Cập nhật vị trí nốt
+        for (let i = this.pianoTiles.length - 1; i >= 0; i--) {
+            const tile = this.pianoTiles[i];
+            tile.topPct += tile.speed;
+
+            if (tile.el) {
+                tile.el.style.top = `${tile.topPct}%`;
+            }
+
+            // Nốt rơi vượt qua đáy màn hình (để rơi nốt)
+            if (tile.topPct > 98 && !tile.hit) {
+                tile.hit = true;
+                if (tile.el) tile.el.remove();
+                this.pianoTiles.splice(i, 1);
+                this.handlePianoMiss("dropped");
+            }
+        }
+
+        if (this.isPianoRunning) {
+            this.pianoAnimId = requestAnimationFrame(() => this.runPianoLoop());
+        }
     }
 
     advanceToStage2() {
-        const stage1 = document.getElementById('stage-catcher');
-        const stage2 = document.getElementById('stage-flower');
+        const stage1 = document.getElementById('stage-piano');
+        const stage2 = document.getElementById('stage-memory');
 
         if (stage1) stage1.style.display = 'none';
         if (stage2) {
             stage2.style.display = 'flex';
             stage2.scrollIntoView({ behavior: 'smooth' });
         }
-        this.updateSealStatus(2, 'active');
+        this.startMemoryGame();
     }
 
     // =============================================================
-    // 2. THỬ THÁCH 2: TRÒ CHƠI TÌM BÔNG HOA ĐẸP NHẤT & ALBUM ẢNH
+    // 2. GAME 2: GHI NHỚ NỐT NHẠC (SIMON MEMORY PIANO)
     // =============================================================
-    renderFlowerCards() {
-        const grid = document.getElementById('flower-cards-grid');
-        if (!grid || !CONFIG.flowerGame || !CONFIG.flowerGame.flowers) return;
+    initMemoryGame() {
+        const padsGrid = document.getElementById('memory-pads-grid');
+        const restartBtn = document.getElementById('btn-restart-memory');
+        if (!padsGrid) return;
 
-        grid.innerHTML = '';
-        CONFIG.flowerGame.flowers.forEach((flower) => {
-            const card = document.createElement('div');
-            card.className = 'flower-card';
-            card.setAttribute('data-id', flower.id);
-            card.innerHTML = `
-                <div class="flower-icon">${flower.icon}</div>
-                <div class="flower-info">
-                    <h4 class="flower-name">${flower.name}</h4>
-                    <p class="flower-desc">${flower.desc}</p>
-                </div>
-                <div class="flower-select-tag">${CONFIG.flowerGame.selectTag || 'CHỌN'}</div>
-            `;
+        const pads = padsGrid.querySelectorAll('.synth-note-btn');
+        pads.forEach((pad) => {
+            const noteIdx = parseInt(pad.getAttribute('data-note'), 10);
 
-            card.addEventListener('click', (e) => this.handleFlowerClick(card, flower, e));
-            grid.appendChild(card);
+            pad.addEventListener('click', () => {
+                if (!this.isMemoryAcceptingInput || this.isMachinePlaying) return;
+                this.handleUserMemoryInput(noteIdx, pad);
+            });
         });
+
+        if (restartBtn) {
+            restartBtn.addEventListener('click', () => {
+                if (window.birthdaySound) window.birthdaySound.playMechanicalClick();
+                this.startMemoryGame();
+            });
+        }
     }
 
-    handleFlowerClick(card, flower, event) {
-        if (this.isFlowerRevealed) return;
+    startMemoryGame() {
+        this.currentStage = 2;
+        this.memoryCurrentRoundIdx = 0;
+        this.memoryErrors = 0;
+        this.updateSealStatus(2, 'active');
 
-        this.flowerAttempts++;
-        if (window.birthdaySound) window.birthdaySound.playMechanicalClick();
+        const overlay = document.getElementById('memory-overlay');
+        if (overlay) overlay.style.display = 'none';
 
-        // Hiệu ứng rung thẻ
-        card.classList.add('picked-shake');
-        setTimeout(() => card.classList.remove('picked-shake'), 450);
+        this.updateMemoryUI();
+        this.startMemoryRound();
+    }
 
-        // Bắn hiệu ứng hoa rơi
-        this.spawnFlowerBurst(event ? event.clientX : null, event ? event.clientY : null);
+    updateMemoryUI() {
+        const roundEl = document.getElementById('memory-round-num');
+        const livesEl = document.getElementById('memory-lives-display');
 
-        // Cập nhật số lượt chọn
-        const attemptsNum = document.getElementById('flower-attempts-num');
-        if (attemptsNum) {
-            attemptsNum.textContent = `${Math.min(3, this.flowerAttempts)} / 3`;
+        const requiredNotes = this.memoryRounds[this.memoryCurrentRoundIdx] || 6;
+        if (roundEl) {
+            roundEl.textContent = `VÒNG ${this.memoryCurrentRoundIdx + 1} / 3 (${requiredNotes} NỐT)`;
         }
 
-        // Hiện thông báo phản hồi
-        const feedbackBox = document.getElementById('flower-feedback-box');
-        const failMsgs = (CONFIG.flowerGame && CONFIG.flowerGame.failMessages) || [
-            "Hoa này rất đẹp, nhưng vẫn chưa phải đáp án chính xác đâu nha. Thử lại xem sao.",
-            "Vẫn chưa chính xác nè. Bông hoa đẹp nhất không nằm trong số này đâu. Bạn chọn tiếp thử đi.",
-            "Vẫn chưa đúng rồi. Thật ra không có loài hoa tự nhiên nào ở đây là đẹp nhất cả..."
-        ];
+        if (livesEl) {
+            const remaining = Math.max(0, this.memoryMaxErrors - this.memoryErrors);
+            let hearts = '';
+            for (let i = 0; i < remaining; i++) hearts += '❤️';
+            for (let i = remaining; i < this.memoryMaxErrors; i++) hearts += '🖤';
+            livesEl.textContent = hearts;
+        }
+    }
 
-        const currentMsg = failMsgs[Math.min(this.flowerAttempts - 1, failMsgs.length - 1)];
-        if (feedbackBox) {
-            feedbackBox.textContent = currentMsg;
-            feedbackBox.style.display = 'block';
-            feedbackBox.classList.remove('feedback-anim');
-            void feedbackBox.offsetWidth;
-            feedbackBox.classList.add('feedback-anim');
+    setMemoryBanner(text, isAlert = false) {
+        const banner = document.getElementById('memory-status-banner');
+        if (!banner) return;
+        banner.textContent = text;
+        banner.classList.toggle('banner-alert', isAlert);
+    }
+
+    startMemoryRound() {
+        const requiredNotes = this.memoryRounds[this.memoryCurrentRoundIdx] || 6;
+        this.updateMemoryUI();
+        this.isMemoryAcceptingInput = false;
+        this.isMachinePlaying = true;
+        this.userSequence = [];
+
+        // Sinh chuỗi nốt ngẫu nhiên cho vòng hiện tại
+        this.memorySequence = [];
+        for (let i = 0; i < requiredNotes; i++) {
+            this.memorySequence.push(Math.floor(Math.random() * 6));
         }
 
-        // Sau 3 lần chọn -> Mở màn bật mí bí mật
-        if (this.flowerAttempts >= 3) {
-            this.isFlowerRevealed = true;
+        this.setMemoryBanner(`🎧 Hãy lắng nghe chuỗi ${requiredNotes} nốt nhạc...`);
+
+        setTimeout(() => {
+            this.playMemorySequence(0);
+        }, 1000);
+    }
+
+    playMemorySequence(stepIndex) {
+        if (stepIndex >= this.memorySequence.length) {
+            // Máy phát xong -> Chuyển lượt cho người chơi
+            this.isMachinePlaying = false;
+            this.isMemoryAcceptingInput = true;
+            this.setMemoryBanner(`👉 Đến lượt bạn! Hãy bấm lại đúng ${this.memorySequence.length} nốt nhé.`);
+            return;
+        }
+
+        const note = this.memorySequence[stepIndex];
+        this.highlightMemoryPad(note, 420);
+
+        if (window.birthdaySound && typeof window.birthdaySound.playPianoNote === 'function') {
+            window.birthdaySound.playPianoNote(note, 0.5);
+        }
+
+        setTimeout(() => {
+            this.playMemorySequence(stepIndex + 1);
+        }, 620);
+    }
+
+    highlightMemoryPad(noteIdx, duration = 350) {
+        const pad = document.querySelector(`.synth-note-btn[data-note="${noteIdx}"]`);
+        if (!pad) return;
+
+        pad.classList.add('pad-active');
+        setTimeout(() => pad.classList.remove('pad-active'), duration);
+    }
+
+    handleUserMemoryInput(noteIdx, padEl) {
+        if (!this.isMemoryAcceptingInput) return;
+
+        this.highlightMemoryPad(noteIdx, 250);
+        if (window.birthdaySound && typeof window.birthdaySound.playPianoNote === 'function') {
+            window.birthdaySound.playPianoNote(noteIdx, 0.5);
+        }
+
+        const expectedNote = this.memorySequence[this.userSequence.length];
+
+        if (noteIdx === expectedNote) {
+            // Đúng nốt tiếp theo
+            this.userSequence.push(noteIdx);
+            this.setMemoryBanner(`✨ Đúng rồi! (${this.userSequence.length} / ${this.memorySequence.length} nốt)`);
+
+            // Nếu bấm đủ toàn bộ chuỗi nốt
+            if (this.userSequence.length === this.memorySequence.length) {
+                this.isMemoryAcceptingInput = false;
+
+                if (window.birthdaySound) window.birthdaySound.playSuccessChord();
+                if (window.fireworks) window.fireworks.burstConfetti();
+
+                this.memoryCurrentRoundIdx++;
+
+                if (this.memoryCurrentRoundIdx >= this.memoryRounds.length) {
+                    // Hoàn thành cả 3 vòng -> Chiến thắng Game 2
+                    this.updateSealStatus(2, 'unlocked');
+                    this.setMemoryBanner(`🎉 XUẤT SẮC! BẠN ĐÃ VƯỢT QUA CẢ 3 VÒNG!`);
+
+                    if (window.birthdaySound) window.birthdaySound.playMagicChime();
+                    if (window.fireworks) window.fireworks.celebrateSequence(2500);
+
+                    setTimeout(() => {
+                        this.advanceToStage3();
+                    }, 1300);
+                } else {
+                    // Chuyển sang vòng tiếp theo
+                    const nextNotes = this.memoryRounds[this.memoryCurrentRoundIdx];
+                    this.setMemoryBanner(`⭐ Vòng ${this.memoryCurrentRoundIdx} hoàn thành! Chuẩn bị Vòng ${this.memoryCurrentRoundIdx + 1} (${nextNotes} nốt)...`);
+                    setTimeout(() => {
+                        this.startMemoryRound();
+                    }, 1400);
+                }
+            }
+        } else {
+            // Bấm sai nốt
+            this.handleMemoryMistake();
+        }
+    }
+
+    handleMemoryMistake() {
+        this.isMemoryAcceptingInput = false;
+        this.memoryErrors++;
+        this.updateMemoryUI();
+
+        if (window.birthdaySound && typeof window.birthdaySound.playWrongBuzz === 'function') {
+            window.birthdaySound.playWrongBuzz();
+        }
+
+        const deck = document.querySelector('.memory-synth-deck');
+        if (deck) {
+            deck.classList.add('board-shake-error');
+            setTimeout(() => deck.classList.remove('board-shake-error'), 400);
+        }
+
+        if (this.memoryErrors >= this.memoryMaxErrors) {
+            // Quá 3 lần sai -> Game Over
+            const overlay = document.getElementById('memory-overlay');
+            const overlayTitle = document.getElementById('memory-overlay-title');
+            const overlaySub = document.getElementById('memory-overlay-sub');
+
+            if (overlayTitle) overlayTitle.textContent = "BẠN ĐÃ NHỚ SAI 3 LẦN!";
+            if (overlaySub) overlaySub.textContent = "Hãy tập trung lắng nghe giai điệu và thử lại từ đầu nhé!";
+            if (overlay) overlay.style.display = 'flex';
+        } else {
+            // Cho nghe lại chuỗi nốt của vòng hiện tại
+            this.setMemoryBanner(`❌ Sai rồi! Bạn còn ${this.memoryMaxErrors - this.memoryErrors} mạng. Hãy nghe lại nhé...`, true);
             setTimeout(() => {
-                this.revealFlowerConclusion();
-            }, 1200);
+                this.startMemoryRound();
+            }, 1500);
         }
     }
 
-    revealFlowerConclusion() {
-        const grid = document.getElementById('flower-cards-grid');
-        const feedbackBox = document.getElementById('flower-feedback-box');
-        const conclusionCard = document.getElementById('flower-conclusion-card');
-        const title = document.getElementById('flower-game-title');
-        const subtitle = document.getElementById('flower-game-subtitle');
-        const attemptsNum = document.getElementById('flower-attempts-num');
+    advanceToStage3() {
+        const stage2 = document.getElementById('stage-memory');
+        const stage3 = document.getElementById('stage-flappy');
 
-        const conclusionCfg = CONFIG.flowerGame && CONFIG.flowerGame.conclusion;
-        const conclusionTitle = document.getElementById('conclusion-title');
-        const conclusionSub = document.getElementById('conclusion-subtitle');
-        const conclusionMsg = document.getElementById('conclusion-message');
-        const conclusionBadge = document.querySelector('.conclusion-crown-badge');
-        const toCandleBtn = document.getElementById('btn-to-candle-stage');
+        if (stage2) stage2.style.display = 'none';
+        if (stage3) {
+            stage3.style.display = 'flex';
+            stage3.scrollIntoView({ behavior: 'smooth' });
+        }
+        this.startFlappyGame();
+    }
 
-        if (grid) grid.style.display = 'none';
-        if (feedbackBox) feedbackBox.style.display = 'none';
-        if (title) title.textContent = (conclusionCfg && conclusionCfg.badge) || "BẬT MÍ BÍ MẬT";
-        if (subtitle) subtitle.textContent = "Điều tuyệt vời nhất không nằm ở bất kỳ loài hoa nào ngoài kia...";
-        if (attemptsNum) attemptsNum.textContent = "3 / 3";
+    // =============================================================
+    // 3. GAME 3: FLAPPY MELODY (CHƠI NHƯ FLAPPY BIRDS)
+    // =============================================================
+    initFlappyGame() {
+        this.flappyCanvas = document.getElementById('flappy-canvas');
+        const restartBtn = document.getElementById('btn-restart-flappy');
+        if (!this.flappyCanvas) return;
 
-        if (conclusionCfg) {
-            if (conclusionTitle && conclusionCfg.title) conclusionTitle.textContent = conclusionCfg.title;
-            if (conclusionSub && conclusionCfg.subtitle) conclusionSub.textContent = conclusionCfg.subtitle;
-            if (conclusionMsg && conclusionCfg.message) conclusionMsg.textContent = conclusionCfg.message;
-            if (conclusionBadge && conclusionCfg.badge) conclusionBadge.textContent = conclusionCfg.badge;
-            if (toCandleBtn && conclusionCfg.btnText) {
-                const btnSpan = toCandleBtn.querySelector('span');
-                if (btnSpan) btnSpan.textContent = conclusionCfg.btnText;
+        this.flappyCtx = this.flappyCanvas.getContext('2d');
+        const canvas = this.flappyCanvas;
+
+        const handleFlap = (e) => {
+            if (e) e.preventDefault();
+            if (!this.isFlappyRunning) return;
+            this.bird.vy = this.bird.jump;
+
+            if (window.birthdaySound && typeof window.birthdaySound.playFlap === 'function') {
+                window.birthdaySound.playFlap();
+            }
+        };
+
+        canvas.addEventListener('mousedown', handleFlap);
+        canvas.addEventListener('touchstart', handleFlap, { passive: false });
+
+        window.addEventListener('keydown', (e) => {
+            const stage = document.getElementById('stage-flappy');
+            if (!this.isFlappyRunning || !stage || stage.style.display === 'none') return;
+            if (e.code === 'Space' || e.key === ' ' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                handleFlap();
+            }
+        });
+
+        if (restartBtn) {
+            restartBtn.addEventListener('click', () => {
+                if (window.birthdaySound) window.birthdaySound.playMechanicalClick();
+                this.startFlappyGame();
+            });
+        }
+    }
+
+    startFlappyGame() {
+        this.currentStage = 3;
+        this.flappyScore = 0;
+        this.pipes = [];
+        this.pipeSpawnTimer = 0;
+        this.bird.y = 150;
+        this.bird.vy = 0;
+        this.isFlappyRunning = true;
+
+        const overlay = document.getElementById('flappy-overlay');
+        if (overlay) overlay.style.display = 'none';
+
+        this.updateFlappyUI();
+        this.updateSealStatus(3, 'active');
+
+        if (this.flappyAnimId) cancelAnimationFrame(this.flappyAnimId);
+        this.runFlappyLoop();
+    }
+
+    updateFlappyUI() {
+        const scoreEl = document.getElementById('flappy-score-num');
+        if (scoreEl) {
+            scoreEl.textContent = `${this.flappyScore} / ${this.flappyTarget}`;
+        }
+    }
+
+    runFlappyLoop() {
+        if (!this.isFlappyRunning || !this.flappyCtx) return;
+        const ctx = this.flappyCtx;
+        const canvas = this.flappyCanvas;
+
+        // Xóa canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 1. Vẽ nền Canvas hoài niệm
+        const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        grad.addColorStop(0, '#1c1510');
+        grad.addColorStop(1, '#0e0b09');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Đường gạch hoài niệm
+        ctx.strokeStyle = 'rgba(212, 175, 55, 0.08)';
+        ctx.lineWidth = 1;
+        for (let y = 30; y < canvas.height; y += 30) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(canvas.width, y);
+            ctx.stroke();
+        }
+
+        // 2. Cập nhật vị trí chim / nốt nhạc
+        this.bird.vy += this.bird.gravity;
+        this.bird.y += this.bird.vy;
+
+        // Vẽ chim / Nốt nhạc phát sáng
+        ctx.save();
+        ctx.translate(this.bird.x, this.bird.y);
+        const angle = Math.min(Math.PI / 4, Math.max(-Math.PI / 4, this.bird.vy * 0.06));
+        ctx.rotate(angle);
+
+        // Ánh sáng xung quanh
+        const radial = ctx.createRadialGradient(0, 0, 4, 0, 0, 22);
+        radial.addColorStop(0, 'rgba(232, 170, 66, 0.8)');
+        radial.addColorStop(1, 'rgba(232, 170, 66, 0)');
+        ctx.fillStyle = radial;
+        ctx.beginPath();
+        ctx.arc(0, 0, 22, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Icon nốt nhạc / trái tim
+        ctx.font = '24px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('🕊️', 0, 0);
+        ctx.restore();
+
+        // 3. Sinh cột chướng ngại vật
+        this.pipeSpawnTimer++;
+        if (this.pipeSpawnTimer % 95 === 0 && this.flappyScore < this.flappyTarget) {
+            const gapHeight = 110;
+            const minPipeH = 40;
+            const maxPipeH = canvas.height - gapHeight - minPipeH;
+            const topH = Math.floor(Math.random() * (maxPipeH - minPipeH)) + minPipeH;
+
+            this.pipes.push({
+                x: canvas.width,
+                width: 44,
+                topH: topH,
+                bottomY: topH + gapHeight,
+                passed: false
+            });
+        }
+
+        // 4. Vẽ & kiểm tra va chạm với các cột
+        for (let i = this.pipes.length - 1; i >= 0; i--) {
+            const pipe = this.pipes[i];
+            pipe.x -= 2.2;
+
+            // Cột trên
+            ctx.fillStyle = '#3a2d23';
+            ctx.strokeStyle = '#d4af37';
+            ctx.lineWidth = 2;
+            ctx.fillRect(pipe.x, 0, pipe.width, pipe.topH);
+            ctx.strokeRect(pipe.x, 0, pipe.width, pipe.topH);
+
+            // Đầu cột trên
+            ctx.fillStyle = '#4a3a2d';
+            ctx.fillRect(pipe.x - 3, pipe.topH - 12, pipe.width + 6, 12);
+            ctx.strokeRect(pipe.x - 3, pipe.topH - 12, pipe.width + 6, 12);
+
+            // Cột dưới
+            const bottomH = canvas.height - pipe.bottomY;
+            ctx.fillStyle = '#3a2d23';
+            ctx.fillRect(pipe.x, pipe.bottomY, pipe.width, bottomH);
+            ctx.strokeRect(pipe.x, pipe.bottomY, pipe.width, bottomH);
+
+            // Đầu cột dưới
+            ctx.fillStyle = '#4a3a2d';
+            ctx.fillRect(pipe.x - 3, pipe.bottomY, pipe.width + 6, 12);
+            ctx.strokeRect(pipe.x - 3, pipe.bottomY, pipe.width + 6, 12);
+
+            // Kiểm tra va chạm (Box vs Circle)
+            const birdRight = this.bird.x + this.bird.radius;
+            const birdLeft = this.bird.x - this.bird.radius;
+            const birdTop = this.bird.y - this.bird.radius;
+            const birdBottom = this.bird.y + this.bird.radius;
+
+            if (birdRight > pipe.x && birdLeft < pipe.x + pipe.width) {
+                if (birdTop < pipe.topH || birdBottom > pipe.bottomY) {
+                    this.handleFlappyCollision();
+                    return;
+                }
+            }
+
+            // Ghi điểm khi bay qua cột
+            if (!pipe.passed && pipe.x + pipe.width < this.bird.x) {
+                pipe.passed = true;
+                this.flappyScore++;
+                this.updateFlappyUI();
+
+                if (window.birthdaySound && typeof window.birthdaySound.playPoint === 'function') {
+                    window.birthdaySound.playPoint();
+                }
+
+                if (window.fireworks && typeof window.fireworks.burstConfetti === 'function') {
+                    window.fireworks.burstConfetti(this.bird.x, this.bird.y, 6);
+                }
+
+                // Đạt 10 cột -> Chiến thắng Game 3
+                if (this.flappyScore >= this.flappyTarget) {
+                    this.isFlappyRunning = false;
+                    cancelAnimationFrame(this.flappyAnimId);
+                    this.updateSealStatus(3, 'unlocked');
+
+                    if (window.birthdaySound) window.birthdaySound.playMagicChime();
+                    if (window.fireworks) {
+                        window.fireworks.burstConfetti();
+                        window.fireworks.celebrateSequence(3000);
+                    }
+
+                    setTimeout(() => {
+                        this.advanceToCandleStage();
+                    }, 1200);
+                    return;
+                }
+            }
+
+            // Xóa cột đã trôi ra ngoài
+            if (pipe.x + pipe.width < -20) {
+                this.pipes.splice(i, 1);
             }
         }
 
-        this.updateSealStatus(2, 'unlocked');
-
-        if (conclusionCard) {
-            conclusionCard.style.display = 'flex';
-            conclusionCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Kiểm tra rơi xuống sàn hoặc chạm trần
+        if (this.bird.y + this.bird.radius >= canvas.height || this.bird.y - this.bird.radius <= 0) {
+            this.handleFlappyCollision();
+            return;
         }
 
-        if (window.birthdaySound) window.birthdaySound.playMagicChime();
-        if (window.fireworks) {
-            window.fireworks.burstConfetti();
-            window.fireworks.celebrateSequence(3500);
-        }
-        this.spawnFlowerShower(50);
-
-        this.renderGalleryPhoto(0);
-    }
-
-    initFlowerGallery() {
-        const prevBtn = document.getElementById('btn-flower-prev');
-        const nextBtn = document.getElementById('btn-flower-next');
-        const dotsContainer = document.getElementById('flower-photo-dots');
-        const thumbsContainer = document.getElementById('flower-thumbnails');
-
-        const images = (CONFIG.flowerGame && CONFIG.flowerGame.conclusion && CONFIG.flowerGame.conclusion.images) || [
-            "images/anh11.png", "images/anh12.png", "images/anh13.png", "images/anh14.png",
-            "images/anh15.png", "images/anh16.png", "images/anh17.png", "images/anh18.png"
-        ];
-
-        if (dotsContainer) {
-            dotsContainer.innerHTML = '';
-            images.forEach((_, idx) => {
-                const dot = document.createElement('div');
-                dot.className = `film-dot ${idx === 0 ? 'active' : ''}`;
-                dot.addEventListener('click', () => {
-                    if (window.birthdaySound) window.birthdaySound.playCameraShutter();
-                    this.renderGalleryPhoto(idx);
-                });
-                dotsContainer.appendChild(dot);
-            });
-        }
-
-        if (thumbsContainer) {
-            thumbsContainer.innerHTML = '';
-            images.forEach((imgSrc, idx) => {
-                const thumb = document.createElement('img');
-                thumb.className = `flower-thumb-item ${idx === 0 ? 'active' : ''}`;
-                thumb.src = imgSrc;
-                thumb.alt = `Ảnh ${idx + 1}`;
-                thumb.onerror = () => {
-                    if (thumb.src.endsWith('.png')) {
-                        thumb.src = thumb.src.replace('.png', '.jpg');
-                    } else if (thumb.src.endsWith('.jpg')) {
-                        thumb.src = thumb.src.replace('.jpg', '.jpeg');
-                    }
-                };
-                thumb.addEventListener('click', () => {
-                    if (window.birthdaySound) window.birthdaySound.playCameraShutter();
-                    this.renderGalleryPhoto(idx);
-                });
-                thumbsContainer.appendChild(thumb);
-            });
-        }
-
-        if (prevBtn) {
-            prevBtn.addEventListener('click', () => {
-                if (window.birthdaySound) window.birthdaySound.playCameraShutter();
-                const newIdx = (this.currentPhotoIdx - 1 + images.length) % images.length;
-                this.renderGalleryPhoto(newIdx);
-            });
-        }
-
-        if (nextBtn) {
-            nextBtn.addEventListener('click', () => {
-                if (window.birthdaySound) window.birthdaySound.playCameraShutter();
-                const newIdx = (this.currentPhotoIdx + 1) % images.length;
-                this.renderGalleryPhoto(newIdx);
-            });
+        if (this.isFlappyRunning) {
+            this.flappyAnimId = requestAnimationFrame(() => this.runFlappyLoop());
         }
     }
 
-    renderGalleryPhoto(idx) {
-        const images = (CONFIG.flowerGame && CONFIG.flowerGame.conclusion && CONFIG.flowerGame.conclusion.images) || [];
-        if (!images[idx]) return;
+    handleFlappyCollision() {
+        this.isFlappyRunning = false;
+        cancelAnimationFrame(this.flappyAnimId);
 
-        this.currentPhotoIdx = idx;
-        const imgEl = document.getElementById('flower-current-img');
-        const counterEl = document.getElementById('gallery-photo-idx');
-        const dots = document.querySelectorAll('#flower-photo-dots .film-dot');
-        const thumbs = document.querySelectorAll('.flower-thumb-item');
-
-        if (counterEl) {
-            counterEl.textContent = `BỨC ẢNH 0${idx + 1}`;
+        if (window.birthdaySound && typeof window.birthdaySound.playHit === 'function') {
+            window.birthdaySound.playHit();
         }
 
-        if (imgEl) {
-            imgEl.style.opacity = '0.3';
-            imgEl.onerror = () => {
-                const src = imgEl.getAttribute('src');
-                if (src && src.endsWith('.png')) {
-                    imgEl.src = src.replace('.png', '.jpg');
-                } else if (src && src.endsWith('.jpg')) {
-                    imgEl.src = src.replace('.jpg', '.jpeg');
-                }
-            };
-            setTimeout(() => {
-                imgEl.src = images[idx];
-                imgEl.style.opacity = '1';
-            }, 100);
-        }
+        const overlay = document.getElementById('flappy-overlay');
+        const overlayTitle = document.getElementById('flappy-overlay-title');
+        const overlaySub = document.getElementById('flappy-overlay-sub');
 
-        dots.forEach((d, i) => d.classList.toggle('active', i === idx));
-        thumbs.forEach((t, i) => t.classList.toggle('active', i === idx));
+        if (overlayTitle) overlayTitle.textContent = "CHẠM CỘT RỒI!";
+        if (overlaySub) overlaySub.textContent = `Bạn đã vượt qua ${this.flappyScore} / ${this.flappyTarget} cột. Chạm để bay lại nhé!`;
+        if (overlay) overlay.style.display = 'flex';
+    }
+
+    advanceToCandleStage() {
+        const stage3 = document.getElementById('stage-flappy');
+        const stageCandle = document.getElementById('stage-candle');
+
+        if (stage3) stage3.style.display = 'none';
+        if (stageCandle) {
+            stageCandle.style.display = 'flex';
+            stageCandle.scrollIntoView({ behavior: 'smooth' });
+        }
     }
 
     // =============================================================
-    // 3. THỬ THÁCH 3: BÁNH KEM & THỔI NẾN ƯỚC NGUYỆN
+    // 4. MÀN BÁNH KEM & THỔI NẾN ƯỚC NGUYỆN
     // =============================================================
     initCandleBlow() {
-        const toCandleBtn = document.getElementById('btn-to-candle-stage');
-        const stageFlower = document.getElementById('stage-flower');
-        const stageCandle = document.getElementById('stage-candle');
         const candleWrapper = document.getElementById('vintage-candle-wrapper');
         const flame = document.getElementById('vintage-candle-flame');
         const cakeCfg = CONFIG.cakeGame;
-
-        if (stageCandle && cakeCfg) {
-            const cakeBadge = stageCandle.querySelector('.flower-badge');
-            const cakeHeading = stageCandle.querySelector('.vintage-heading');
-            const cakeSub = stageCandle.querySelector('.vintage-sub');
-            const blowHintEl = document.getElementById('vintage-blow-hint');
-
-            if (cakeBadge && cakeCfg.badge) cakeBadge.textContent = cakeCfg.badge;
-            if (cakeHeading && cakeCfg.title) cakeHeading.textContent = cakeCfg.title;
-            if (cakeSub && cakeCfg.hint) cakeSub.textContent = cakeCfg.hint;
-            if (blowHintEl && cakeCfg.blowHint) blowHintEl.textContent = cakeCfg.blowHint;
-        }
-
-        if (toCandleBtn) {
-            toCandleBtn.addEventListener('click', () => {
-                if (window.birthdaySound) window.birthdaySound.playMagicChime();
-                if (stageFlower) stageFlower.style.display = 'none';
-                if (stageCandle) {
-                    stageCandle.style.display = 'flex';
-                    stageCandle.scrollIntoView({ behavior: 'smooth' });
-                }
-                this.updateSealStatus(3, 'active');
-                if (window.fireworks) window.fireworks.launchFirework();
-            });
-        }
 
         if (candleWrapper) {
             candleWrapper.addEventListener('click', () => {
@@ -469,17 +812,15 @@ class VintageQuestController {
 
                 if (flame) flame.classList.add('extinguished');
 
-                // Tạo khói nến
+                // Tạo hiệu ứng khói nến
                 const smoke = document.createElement('div');
                 smoke.className = 'candle-smoke-fx';
                 candleWrapper.appendChild(smoke);
 
-                this.updateSealStatus(3, 'unlocked');
-
                 if (window.birthdaySound) window.birthdaySound.playMagicChime();
                 if (window.fireworks) {
                     window.fireworks.burstConfetti();
-                    window.fireworks.celebrateSequence(3000);
+                    window.fireworks.celebrateSequence(3200);
                 }
 
                 const blowHint = document.getElementById('vintage-blow-hint');
@@ -497,14 +838,237 @@ class VintageQuestController {
     }
 
     // =============================================================
-    // HIỆU ỨNG ÁNH SAO LẤP LÁNH
+    // 5. TRÒ CHƠI BÍ MẬT (MODAL): ĐOÁN BÔNG HOA ĐẸP NHẤT
     // =============================================================
+    initSecretFlowerModal() {
+        const modal = document.getElementById('secret-flower-modal');
+        const starBtn = document.getElementById('secret-star-btn');
+        const closeBtn = document.getElementById('btn-close-secret-modal');
+        const dismissBtn = document.getElementById('btn-dismiss-secret-modal');
+
+        this.secretFlowerAttempts = 0;
+        this.secretPhotoIdx = 0;
+
+        if (starBtn) {
+            starBtn.addEventListener('click', (e) => {
+                if (window.birthdaySound) window.birthdaySound.playMagicChime();
+                if (window.fireworks) window.fireworks.burstConfetti(e.clientX, e.clientY, 25);
+                this.openSecretFlowerModal();
+            });
+        }
+
+        if (closeBtn) closeBtn.addEventListener('click', () => this.closeSecretFlowerModal());
+        if (dismissBtn) dismissBtn.addEventListener('click', () => this.closeSecretFlowerModal());
+
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) this.closeSecretFlowerModal();
+            });
+        }
+
+        this.renderSecretFlowerCards();
+        this.initSecretGalleryControls();
+    }
+
+    openSecretFlowerModal() {
+        const modal = document.getElementById('secret-flower-modal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    closeSecretFlowerModal() {
+        const modal = document.getElementById('secret-flower-modal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    }
+
+    renderSecretFlowerCards() {
+        const grid = document.getElementById('secret-flower-grid');
+        if (!grid || !CONFIG.flowerGame || !CONFIG.flowerGame.flowers) return;
+
+        grid.innerHTML = '';
+        CONFIG.flowerGame.flowers.forEach((flower) => {
+            const card = document.createElement('div');
+            card.className = 'flower-card';
+            card.setAttribute('data-id', flower.id);
+            card.innerHTML = `
+                <div class="flower-icon">${flower.icon}</div>
+                <div class="flower-info">
+                    <h4 class="flower-name">${flower.name}</h4>
+                    <p class="flower-desc">${flower.desc}</p>
+                </div>
+                <div class="flower-select-tag">${CONFIG.flowerGame.selectTag || 'CHỌN BÔNG NÀY'}</div>
+            `;
+
+            card.addEventListener('click', (e) => this.handleSecretFlowerClick(card, flower, e));
+            grid.appendChild(card);
+        });
+    }
+
+    handleSecretFlowerClick(card, flower, event) {
+        if (this.secretFlowerRevealed) return;
+
+        this.secretFlowerAttempts++;
+        if (window.birthdaySound) window.birthdaySound.playMechanicalClick();
+
+        card.classList.add('picked-shake');
+        setTimeout(() => card.classList.remove('picked-shake'), 450);
+
+        this.spawnFlowerBurst(event ? event.clientX : null, event ? event.clientY : null);
+
+        const attemptsNum = document.getElementById('secret-flower-attempts-num');
+        if (attemptsNum) {
+            attemptsNum.textContent = `${Math.min(3, this.secretFlowerAttempts)} / 3`;
+        }
+
+        const feedbackBox = document.getElementById('secret-flower-feedback');
+        const failMsgs = (CONFIG.flowerGame && CONFIG.flowerGame.failMessages) || [
+            "Hoa này rất đẹp, nhưng vẫn chưa phải đáp án chính xác đâu nha. Thử chọn lại xem sao!",
+            "Vẫn chưa chính xác nè. Bông hoa đẹp nhất không nằm trong số này đâu. Bạn chọn tiếp thử đi!",
+            "Vẫn chưa đúng rồi. Thật ra không có loài hoa tự nhiên nào ở đây là đẹp nhất cả..."
+        ];
+
+        const currentMsg = failMsgs[Math.min(this.secretFlowerAttempts - 1, failMsgs.length - 1)];
+        if (feedbackBox) {
+            feedbackBox.textContent = currentMsg;
+            feedbackBox.style.display = 'block';
+            feedbackBox.classList.remove('feedback-anim');
+            void feedbackBox.offsetWidth;
+            feedbackBox.classList.add('feedback-anim');
+        }
+
+        // Sau 3 lần chọn -> Mở bật mí bí mật
+        if (this.secretFlowerAttempts >= 3) {
+            this.secretFlowerRevealed = true;
+            setTimeout(() => {
+                this.revealSecretFlowerConclusion();
+            }, 1100);
+        }
+    }
+
+    revealSecretFlowerConclusion() {
+        const grid = document.getElementById('secret-flower-grid');
+        const feedbackBox = document.getElementById('secret-flower-feedback');
+        const conclusionCard = document.getElementById('secret-flower-conclusion');
+        const attemptsNum = document.getElementById('secret-flower-attempts-num');
+
+        if (grid) grid.style.display = 'none';
+        if (feedbackBox) feedbackBox.style.display = 'none';
+        if (attemptsNum) attemptsNum.textContent = "3 / 3";
+
+        if (conclusionCard) {
+            conclusionCard.style.display = 'flex';
+            conclusionCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        if (window.birthdaySound) window.birthdaySound.playMagicChime();
+        if (window.fireworks) {
+            window.fireworks.burstConfetti();
+            window.fireworks.celebrateSequence(3200);
+        }
+
+        this.renderSecretPhoto(0);
+    }
+
+    initSecretGalleryControls() {
+        const prevBtn = document.getElementById('btn-secret-prev');
+        const nextBtn = document.getElementById('btn-secret-next');
+        const dotsContainer = document.getElementById('secret-photo-dots');
+        const thumbsContainer = document.getElementById('secret-thumbnails');
+
+        const images = (CONFIG.flowerGame && CONFIG.flowerGame.conclusion && CONFIG.flowerGame.conclusion.images) || [
+            "images/anh11.png", "images/anh12.png", "images/anh13.png", "images/anh14.png",
+            "images/anh15.png", "images/anh16.png", "images/anh17.png", "images/anh18.png"
+        ];
+
+        if (dotsContainer) {
+            dotsContainer.innerHTML = '';
+            images.forEach((_, idx) => {
+                const dot = document.createElement('div');
+                dot.className = `film-dot ${idx === 0 ? 'active' : ''}`;
+                dot.addEventListener('click', () => {
+                    if (window.birthdaySound) window.birthdaySound.playCameraShutter();
+                    this.renderSecretPhoto(idx);
+                });
+                dotsContainer.appendChild(dot);
+            });
+        }
+
+        if (thumbsContainer) {
+            thumbsContainer.innerHTML = '';
+            images.forEach((imgSrc, idx) => {
+                const thumb = document.createElement('img');
+                thumb.className = `flower-thumb-item ${idx === 0 ? 'active' : ''}`;
+                thumb.src = imgSrc;
+                thumb.alt = `Ảnh ${idx + 1}`;
+                thumb.onerror = () => {
+                    if (thumb.src.endsWith('.png')) {
+                        thumb.src = thumb.src.replace('.png', '.jpg');
+                    }
+                };
+                thumb.addEventListener('click', () => {
+                    if (window.birthdaySound) window.birthdaySound.playCameraShutter();
+                    this.renderSecretPhoto(idx);
+                });
+                thumbsContainer.appendChild(thumb);
+            });
+        }
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                if (window.birthdaySound) window.birthdaySound.playCameraShutter();
+                const newIdx = (this.secretPhotoIdx - 1 + images.length) % images.length;
+                this.renderSecretPhoto(newIdx);
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                if (window.birthdaySound) window.birthdaySound.playCameraShutter();
+                const newIdx = (this.secretPhotoIdx + 1) % images.length;
+                this.renderSecretPhoto(newIdx);
+            });
+        }
+    }
+
+    renderSecretPhoto(idx) {
+        const images = (CONFIG.flowerGame && CONFIG.flowerGame.conclusion && CONFIG.flowerGame.conclusion.images) || [];
+        if (!images[idx]) return;
+
+        this.secretPhotoIdx = idx;
+        const imgEl = document.getElementById('secret-current-img');
+        const counterEl = document.getElementById('secret-gallery-idx');
+        const dots = document.querySelectorAll('#secret-photo-dots .film-dot');
+        const thumbs = document.querySelectorAll('#secret-thumbnails .flower-thumb-item');
+
+        if (counterEl) counterEl.textContent = `BỨC ẢNH 0${idx + 1}`;
+
+        if (imgEl) {
+            imgEl.style.opacity = '0.3';
+            imgEl.onerror = () => {
+                const src = imgEl.getAttribute('src');
+                if (src && src.endsWith('.png')) imgEl.src = src.replace('.png', '.jpg');
+            };
+            setTimeout(() => {
+                imgEl.src = images[idx];
+                imgEl.style.opacity = '1';
+            }, 100);
+        }
+
+        dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+        thumbs.forEach((t, i) => t.classList.toggle('active', i === idx));
+    }
+
     spawnFlowerBurst(x, y) {
-        const icons = ['✦', '✧', '⋆', '•', '✨'];
+        const icons = ['🌸', '✨', '💖', '⭐', '🌷'];
         const originX = x || window.innerWidth / 2;
         const originY = y || window.innerHeight / 2;
 
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 8; i++) {
             const p = document.createElement('div');
             p.className = 'floating-flower-particle';
             p.textContent = icons[Math.floor(Math.random() * icons.length)];
@@ -512,7 +1076,7 @@ class VintageQuestController {
             p.style.top = `${originY}px`;
 
             const angle = Math.random() * Math.PI * 2;
-            const dist = 50 + Math.random() * 100;
+            const dist = 40 + Math.random() * 80;
             p.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
             p.style.setProperty('--ty', `${Math.sin(angle) * dist}px`);
 
@@ -520,26 +1084,6 @@ class VintageQuestController {
             setTimeout(() => p.remove(), 1200);
         }
     }
-
-    spawnFlowerShower(count = 30) {
-        const icons = ['✦', '✧', '⋆', '•'];
-        for (let i = 0; i < count; i++) {
-            setTimeout(() => {
-                const p = document.createElement('div');
-                p.className = 'shower-flower-item';
-                p.textContent = icons[Math.floor(Math.random() * icons.length)];
-                p.style.left = `${Math.random() * 100}vw`;
-                p.style.top = `-30px`;
-                p.style.animationDuration = `${3 + Math.random() * 3}s`;
-                p.style.fontSize = `${16 + Math.random() * 20}px`;
-
-                document.body.appendChild(p);
-                setTimeout(() => p.remove(), 6000);
-            }, i * 60);
-        }
-    }
 }
 
-// Khởi tạo toàn cục
 window.VintageQuestController = VintageQuestController;
-window.FlowerGameController = VintageQuestController;

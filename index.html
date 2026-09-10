@@ -200,106 +200,180 @@
                 <!-- Thanh tiến trình 3 Thử Thách Vintage -->
                 <div class="quest-status-bar">
                     <div id="seal-1" class="seal-item active">
-                        <span class="seal-icon">🔒</span> 1: Hứng Quà
+                        <span class="seal-icon">🔒</span> 1: Piano Nốt
                     </div>
                     <div id="seal-2" class="seal-item">
-                        <span class="seal-icon">🔒</span> 2: Hoa Đẹp Nhất
+                        <span class="seal-icon">🔒</span> 2: Nhớ Nốt
                     </div>
                     <div id="seal-3" class="seal-item">
-                        <span class="seal-icon">🔒</span> 3: Thổi Nến
+                        <span class="seal-icon">🔒</span> 3: Flappy Bird
                     </div>
                 </div>
 
-                <!-- Giai đoạn 1: Trò chơi Hứng Quà Sinh Nhật (Canvas Catcher) -->
-                <div id="stage-catcher" class="catcher-stage-box">
+                <!-- =============================================================
+                     THỬ THÁCH 1: PIANO TILES (BẤM NỐT RƠI)
+                     ============================================================= -->
+                <div id="stage-piano" class="game-stage-box">
                     <div class="section-title-wrap">
-                        <div class="flower-badge" id="catcher-game-badge">THỬ THÁCH 1 / 3</div>
-                        <h2 class="vintage-heading" id="catcher-game-title">Hứng Quà Sinh Nhật 🎁</h2>
-                        <p class="vintage-sub" id="catcher-game-subtitle">
-                            Di chuyển chuột hoặc vuốt ngón tay để hứng đủ 10 món quà kỷ niệm nhé!
+                        <div class="flower-badge" id="piano-game-badge">THỬ THÁCH 1 / 3</div>
+                        <h2 class="vintage-heading" id="piano-game-title">Piano Tiles Hoài Niệm 🎹</h2>
+                        <p class="vintage-sub" id="piano-game-subtitle">
+                            Chạm vào các nốt nhạc piano rơi xuống. Bấm trượt hoặc để rơi quá 5 lần sẽ thua nhé!
                         </p>
                     </div>
 
-                    <div class="flower-stats-bar">
+                    <div class="game-stats-bar">
                         <div class="stat-box">
-                            <span class="stat-label">ĐIỂM SỐ:</span>
-                            <span id="catcher-score-num" class="stat-value">0 / 10</span>
+                            <span class="stat-label">ĐIỂM:</span>
+                            <span id="piano-score-num" class="stat-value">0 / 20</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">MẠNG:</span>
+                            <span id="piano-lives-display" class="stat-value lives-glow">❤️❤️❤️❤️❤️</span>
                         </div>
                     </div>
 
-                    <!-- Khung Canvas Arcade Hứng Quà -->
-                    <div class="catcher-canvas-wrapper">
-                        <canvas id="catcher-canvas" width="480" height="300"></canvas>
-                        <div class="catcher-instruction-hint">Di chuột hoặc vuốt để điều khiển giỏ 🧺</div>
+                    <!-- Khung Piano Tiles Canvas/Arcade -->
+                    <div class="piano-arcade-wrapper">
+                        <div class="piano-lanes-board" id="piano-board">
+                            <div class="piano-lane" data-lane="0">
+                                <span class="lane-key-label">D / 1</span>
+                                <div class="lane-hit-zone"></div>
+                            </div>
+                            <div class="piano-lane" data-lane="1">
+                                <span class="lane-key-label">F / 2</span>
+                                <div class="lane-hit-zone"></div>
+                            </div>
+                            <div class="piano-lane" data-lane="2">
+                                <span class="lane-key-label">J / 3</span>
+                                <div class="lane-hit-zone"></div>
+                            </div>
+                            <div class="piano-lane" data-lane="3">
+                                <span class="lane-key-label">K / 4</span>
+                                <div class="lane-hit-zone"></div>
+                            </div>
+                        </div>
+
+                        <!-- Lớp phủ Game Over / Bắt đầu Piano -->
+                        <div id="piano-overlay" class="game-overlay-panel" style="display: none;">
+                            <h3 id="piano-overlay-title" class="overlay-title">HẾT LƯỢT RỒI!</h3>
+                            <p id="piano-overlay-sub" class="overlay-sub">Bạn đã bấm hụt hoặc để rơi nốt quá 5 lần.</p>
+                            <button id="btn-restart-piano" class="btn-vintage-accent">
+                                <span>THỬ LẠI LẦN NỮA</span>
+                            </button>
+                        </div>
                     </div>
+                    <div class="game-instruction-hint">Chạm trực tiếp vào nốt hoặc ấn phím D, F, J, K (hoặc 1, 2, 3, 4)</div>
                 </div>
 
-                <!-- Giai đoạn 2: Trò chơi Tìm Bông Hoa Đẹp Nhất -->
-                <div id="stage-flower" class="flower-stage-box" style="display: none;">
+                <!-- =============================================================
+                     THỬ THÁCH 2: GHI NHỚ NỐT NHẠC (SIMON MEMORY PIANO)
+                     ============================================================= -->
+                <div id="stage-memory" class="game-stage-box" style="display: none;">
                     <div class="section-title-wrap">
-                        <div class="flower-badge" id="flower-game-badge">THỬ THÁCH 2 / 3</div>
-                        <h2 class="vintage-heading" id="flower-game-title">Tìm Bông Hoa Đẹp Nhất</h2>
-                        <p class="vintage-sub" id="flower-game-subtitle">
-                            Trong các loài hoa dưới đây, theo bạn bông hoa nào là đẹp nhất?
+                        <div class="flower-badge" id="memory-game-badge">THỬ THÁCH 2 / 3</div>
+                        <h2 class="vintage-heading" id="memory-game-title">Thử Thách Nhớ Nốt Nhạc 🎵</h2>
+                        <p class="vintage-sub" id="memory-game-subtitle">
+                            Lắng nghe giai điệu và bấm lại đúng chuỗi nốt: Vòng 1 (6 nốt) • Vòng 2 (8 nốt) • Vòng 3 (10 nốt). Nhớ sai 3 lần sẽ bị loại!
                         </p>
                     </div>
 
-                    <div class="flower-stats-bar">
+                    <div class="game-stats-bar">
                         <div class="stat-box">
-                            <span class="stat-label">LƯỢT CHỌN:</span>
-                            <span id="flower-attempts-num" class="stat-value">0 / 3</span>
+                            <span class="stat-label">TIẾN TRÌNH:</span>
+                            <span id="memory-round-num" class="stat-value">VÒNG 1 (6 NỐT)</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">MẠNG:</span>
+                            <span id="memory-lives-display" class="stat-value lives-glow">❤️❤️❤️</span>
                         </div>
                     </div>
 
-                    <!-- Hộp phản hồi khi chọn -->
-                    <div id="flower-feedback-box" class="flower-feedback-box" style="display: none;"></div>
+                    <div id="memory-status-banner" class="memory-turn-banner">
+                        Đang chuẩn bị phát nốt...
+                    </div>
 
-                    <!-- Lưới 12 thẻ bông hoa -->
-                    <div id="flower-cards-grid" class="flower-cards-grid"></div>
-
-                    <!-- Màn Kết Luận Bất Ngờ (Sau 3 lần chọn) -->
-                    <div id="flower-conclusion-card" class="flower-conclusion-card" style="display: none;">
-                        <div class="conclusion-crown-badge">BẬT MÍ BÍ MẬT</div>
-                        <h3 id="conclusion-title" class="conclusion-title">THẬT RA TRẦN THỊ THANH BÌNH LÀ BÔNG HOA ĐẸP NHẤT</h3>
-                        <p id="conclusion-subtitle" class="conclusion-subtitle">
-                            Mỗi loài hoa có một vẻ đẹp riêng, nhưng với mình, bạn luôn là điều đặc biệt nhất.
-                        </p>
-
-                        <!-- Album ảnh từ anh11 -> anh18 -->
-                        <div class="flower-gallery-wrapper">
-                            <div class="flower-gallery-counter">
-                                <span id="gallery-photo-idx">BỨC ẢNH 01</span> / 08
-                            </div>
-                            
-                            <div class="flower-polaroid-frame">
-                                <img id="flower-current-img" class="flower-polaroid-img" src="images/anh11.png" alt="Bông hoa đẹp nhất">
-                                <div class="photo-vintage-overlay"></div>
-                            </div>
-
-                            <div class="flower-gallery-controls">
-                                <button id="btn-flower-prev" class="btn-vintage-ctrl">❮ ẢNH TRƯỚC</button>
-                                <div id="flower-photo-dots" class="film-frame-dots"></div>
-                                <button id="btn-flower-next" class="btn-vintage-ctrl">ẢNH SAU ❯</button>
-                            </div>
-
-                            <!-- Dải thumbnail 8 ảnh để click chọn nhanh -->
-                            <div id="flower-thumbnails" class="flower-thumbnails-row"></div>
+                    <!-- Bàn phím nốt phát sáng Simon -->
+                    <div class="memory-synth-deck">
+                        <div class="synth-pads-grid" id="memory-pads-grid">
+                            <button class="synth-note-btn note-c" data-note="0">
+                                <span class="note-tone">DO</span>
+                                <span class="note-freq">C4</span>
+                            </button>
+                            <button class="synth-note-btn note-d" data-note="1">
+                                <span class="note-tone">RE</span>
+                                <span class="note-freq">D4</span>
+                            </button>
+                            <button class="synth-note-btn note-e" data-note="2">
+                                <span class="note-tone">MI</span>
+                                <span class="note-freq">E4</span>
+                            </button>
+                            <button class="synth-note-btn note-f" data-note="3">
+                                <span class="note-tone">FA</span>
+                                <span class="note-freq">F4</span>
+                            </button>
+                            <button class="synth-note-btn note-g" data-note="4">
+                                <span class="note-tone">SOL</span>
+                                <span class="note-freq">G4</span>
+                            </button>
+                            <button class="synth-note-btn note-a" data-note="5">
+                                <span class="note-tone">LA</span>
+                                <span class="note-freq">A4</span>
+                            </button>
                         </div>
 
-                        <div id="conclusion-message" class="conclusion-message">
-                            Hoa đẹp đến đâu rồi cũng có lúc tàn, nhưng nét duyên dáng, sự chân thành và nụ cười rạng rỡ của bạn luôn để lại ấn tượng đẹp nhất. Chúc bạn luôn tự tin, tỏa sáng và hạnh phúc theo cách của riêng mình nhé.
+                        <!-- Lớp phủ Game Over Memory -->
+                        <div id="memory-overlay" class="game-overlay-panel" style="display: none;">
+                            <h3 id="memory-overlay-title" class="overlay-title">BẠN ĐÃ NHỚ SAI 3 LẦN!</h3>
+                            <p id="memory-overlay-sub" class="overlay-sub">Đừng nản lòng, hãy tập trung lắng nghe lại nhé!</p>
+                            <button id="btn-restart-memory" class="btn-vintage-accent">
+                                <span>CHƠI LẠI THỬ THÁCH 2</span>
+                            </button>
                         </div>
-
-                        <button id="btn-to-candle-stage" class="btn-vintage-accent" style="margin-top: 18px;">
-                            <span>TIẾP TỤC ĐẾN PHẦN THỔI NẾN</span>
-                        </button>
                     </div>
                 </div>
 
-                <!-- Giai đoạn 2: Bánh Kem & Thổi Nến Ước Nguyện -->
+                <!-- =============================================================
+                     THỬ THÁCH 3: FLAPPY MELODY (CHƠI NHƯ FLAPPY BIRDS)
+                     ============================================================= -->
+                <div id="stage-flappy" class="game-stage-box" style="display: none;">
+                    <div class="section-title-wrap">
+                        <div class="flower-badge" id="flappy-game-badge">THỬ THÁCH 3 / 3</div>
+                        <h2 class="vintage-heading" id="flappy-game-title">Flappy Melody 🕊️</h2>
+                        <p class="vintage-sub" id="flappy-game-subtitle">
+                            Chạm màn hình, click chuột hoặc ấn phím Space để bay qua 10 chướng ngại vật hoài niệm!
+                        </p>
+                    </div>
+
+                    <div class="game-stats-bar">
+                        <div class="stat-box">
+                            <span class="stat-label">CỘT ĐÃ QUA:</span>
+                            <span id="flappy-score-num" class="stat-value">0 / 10</span>
+                        </div>
+                    </div>
+
+                    <!-- Flappy Canvas -->
+                    <div class="flappy-canvas-wrapper">
+                        <canvas id="flappy-canvas" width="480" height="340"></canvas>
+                        
+                        <!-- Lớp phủ Flappy Game Over / Sẵn sàng -->
+                        <div id="flappy-overlay" class="game-overlay-panel" style="display: none;">
+                            <h3 id="flappy-overlay-title" class="overlay-title">CHẠM CỘT RỒI!</h3>
+                            <p id="flappy-overlay-sub" class="overlay-sub">Chạm hoặc nhấn Space để bay lại nhé!</p>
+                            <button id="btn-restart-flappy" class="btn-vintage-accent">
+                                <span>BAY LẠI TỪ ĐẦU</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="game-instruction-hint">Chạm màn hình, click chuột hoặc nhấn phím Space để nhảy lên</div>
+                </div>
+
+                <!-- =============================================================
+                     GIAI ĐOẠN 4: BÁNH KEM & THỔI NẾN ƯỚC NGUYỆN
+                     ============================================================= -->
                 <div id="stage-candle" class="candle-stage-box" style="display: none;">
                     <div class="section-title-wrap">
-                        <div class="flower-badge">ƯỚC NGUYỆN TUỔI MỚI</div>
+                        <div class="flower-badge">ƯỚC NGUYỆN TUỔI MỚI 🎂</div>
                         <h2 class="vintage-heading">Thổi Nến Sinh Nhật</h2>
                         <p class="vintage-sub">
                             Nhắm mắt ước một điều ước cho tuổi mới, sau đó chạm vào ngọn nến để thổi tắt nhé.
@@ -324,6 +398,74 @@
                 </div>
             </div>
         </section>
+
+        <!-- =================================================================
+             MODAL TRÒ CHƠI BÍ MẬT: ĐOÁN BÔNG HOA ĐẸP NHẤT (KHI ẤN NGÔI SAO)
+             ================================================================= -->
+        <div id="secret-flower-modal" class="vintage-modal-backdrop" style="display: none;">
+            <div class="vintage-modal-card vintage-panel">
+                <button id="btn-close-secret-modal" class="modal-close-btn" title="Đóng cửa sổ">✕</button>
+
+                <div class="section-title-wrap">
+                    <div class="flower-badge">TRÒ CHƠI BÍ MẬT ⭐</div>
+                    <h2 class="vintage-heading" id="modal-flower-title">Đoán Bông Hoa Đẹp Nhất 🌸</h2>
+                    <p class="vintage-sub" id="modal-flower-subtitle">
+                        Trong các loài hoa dưới đây, theo bạn bông hoa nào là đẹp nhất?
+                    </p>
+                </div>
+
+                <div class="flower-stats-bar">
+                    <div class="stat-box">
+                        <span class="stat-label">LƯỢT CHỌN:</span>
+                        <span id="secret-flower-attempts-num" class="stat-value">0 / 3</span>
+                    </div>
+                </div>
+
+                <!-- Hộp phản hồi khi chọn -->
+                <div id="secret-flower-feedback" class="flower-feedback-box" style="display: none;"></div>
+
+                <!-- Lưới 12 thẻ bông hoa bí mật -->
+                <div id="secret-flower-grid" class="flower-cards-grid"></div>
+
+                <!-- Màn Bật Mí Bí Mật Bông Hoa Đẹp Nhất -->
+                <div id="secret-flower-conclusion" class="flower-conclusion-card" style="display: none;">
+                    <div class="conclusion-crown-badge">BẬT MÍ BÍ MẬT 💖</div>
+                    <h3 class="conclusion-title">THẬT RA TRẦN THỊ THANH BÌNH LÀ BÔNG HOA ĐẸP NHẤT</h3>
+                    <p class="conclusion-subtitle">
+                        Mỗi loài hoa có một vẻ đẹp riêng, nhưng với mình, bạn luôn là điều tuyệt vời nhất.
+                    </p>
+
+                    <!-- Album 8 ảnh -->
+                    <div class="flower-gallery-wrapper">
+                        <div class="flower-gallery-counter">
+                            <span id="secret-gallery-idx">BỨC ẢNH 01</span> / 08
+                        </div>
+                        
+                        <div class="flower-polaroid-frame">
+                            <img id="secret-current-img" class="flower-polaroid-img" src="images/anh11.png" alt="Bông hoa đẹp nhất">
+                            <div class="photo-vintage-overlay"></div>
+                        </div>
+
+                        <div class="flower-gallery-controls">
+                            <button id="btn-secret-prev" class="btn-vintage-ctrl">❮ ẢNH TRƯỚC</button>
+                            <div id="secret-photo-dots" class="film-frame-dots"></div>
+                            <button id="btn-secret-next" class="btn-vintage-ctrl">ẢNH SAU ❯</button>
+                        </div>
+
+                        <!-- Dải thumbnail -->
+                        <div id="secret-thumbnails" class="flower-thumbnails-row"></div>
+                    </div>
+
+                    <div class="conclusion-message">
+                        Hoa đẹp đến đâu rồi cũng có lúc tàn, nhưng nét duyên dáng, sự chân thành và nụ cười rạng rỡ của bạn luôn để lại ấn tượng đẹp nhất. Chúc bạn luôn tự tin, tỏa sáng và hạnh phúc theo cách của riêng mình nhé.
+                    </div>
+
+                    <button id="btn-dismiss-secret-modal" class="btn-vintage-accent" style="margin-top: 18px;">
+                        <span>ĐÓNG LỜI NHẮN BÍ MẬT</span>
+                    </button>
+                </div>
+            </div>
+        </div>
 
         <!-- =================================================================
              4. MÀN HÌNH 4: BỨC THƯ MÁY ĐÁNH CHỮ & CON DẤU SÁP (SCREEN LETTER)

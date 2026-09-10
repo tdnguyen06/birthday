@@ -809,7 +809,7 @@ body {
     font-size: 1rem;
 }
 
-.catcher-stage-box, .flower-stage-box, .candle-stage-box {
+.game-stage-box, .candle-stage-box {
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -823,40 +823,368 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Catcher Arcade Canvas */
-.catcher-canvas-wrapper {
+.game-stats-bar, .flower-stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
     width: 100%;
-    max-width: 520px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+
+.lives-glow {
+    letter-spacing: 3px;
+    font-size: 1rem !important;
+}
+
+/* -------------------------------------------------------------
+   1. PIANO TILES ARCADE STYLING
+   ------------------------------------------------------------- */
+.piano-arcade-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    height: 380px;
+    background: #0d0a08;
+    border: 2px solid var(--border-brass);
+    border-radius: 14px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.7), inset 0 0 20px rgba(0,0,0,0.85);
+    overflow: hidden;
+    user-select: none;
+    touch-action: none;
+}
+
+.piano-lanes-board {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.piano-lane {
+    flex: 1;
+    height: 100%;
+    position: relative;
+    border-right: 1px solid rgba(212, 175, 55, 0.18);
     display: flex;
     flex-direction: column;
+    justify-content: flex-end;
     align-items: center;
-    gap: 8px;
-    background: #0e0b09;
-    border: 2px solid #332820;
-    border-radius: 14px;
-    padding: 14px;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.7), inset 0 0 15px rgba(0,0,0,0.8);
+    cursor: pointer;
+    background: linear-gradient(180deg, rgba(20,16,13,0.3) 0%, rgba(32,25,20,0.5) 100%);
+    transition: background 0.1s ease;
 }
 
-#catcher-canvas {
+.piano-lane:last-child {
+    border-right: none;
+}
+
+.piano-lane:active, .piano-lane.lane-hit-active {
+    background: linear-gradient(180deg, rgba(232, 170, 66, 0.15) 0%, rgba(232, 170, 66, 0.35) 100%);
+}
+
+.lane-hit-zone {
     width: 100%;
-    max-width: 480px;
-    height: auto;
-    aspect-ratio: 480 / 300;
-    background: radial-gradient(circle at center, #231b14 0%, #0d0a08 100%);
-    border: 2px solid rgba(212, 175, 55, 0.3);
-    border-radius: 8px;
-    cursor: crosshair;
-    touch-action: none;
-    display: block;
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    height: 65px;
+    background: linear-gradient(180deg, rgba(212, 175, 55, 0.12), rgba(212, 175, 55, 0.28));
+    border-top: 2px dashed rgba(212, 175, 55, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.catcher-instruction-hint {
+.lane-key-label {
+    position: absolute;
+    bottom: 12px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--vintage-gold);
+    background: rgba(0, 0, 0, 0.6);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    pointer-events: none;
+}
+
+.falling-piano-tile {
+    position: absolute;
+    width: 86%;
+    left: 7%;
+    height: 52px;
+    background: linear-gradient(135deg, #e8aa42, #b86236);
+    border: 1px solid #ffd480;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(232, 170, 66, 0.5), inset 0 1px 2px rgba(255,255,255,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff;
+    font-size: 1.4rem;
+    pointer-events: none;
+    transition: transform 0.1s ease, opacity 0.1s ease;
+}
+
+.falling-piano-tile.tile-popped {
+    transform: scale(1.35);
+    opacity: 0;
+    background: #52c488;
+}
+
+.board-shake-error {
+    animation: shakeErrorAnim 0.35s ease;
+}
+
+@keyframes shakeErrorAnim {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+}
+
+/* Overlay Game Over / Retry */
+.game-overlay-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(14, 11, 9, 0.92);
+    backdrop-filter: blur(6px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    text-align: center;
+    z-index: 50;
+    animation: fadeInStage 0.3s ease-out;
+}
+
+.overlay-title {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    color: var(--wax-red);
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+
+.overlay-sub {
+    font-size: 0.9rem;
+    color: var(--paper-cream);
+    margin-bottom: 18px;
+    max-width: 320px;
+}
+
+.game-instruction-hint {
     font-family: var(--font-hand);
     font-size: 1.15rem;
     color: var(--vintage-amber);
     text-align: center;
+    margin-top: 4px;
+}
+
+/* -------------------------------------------------------------
+   2. MUSIC MEMORY SYNTH (SIMON SAYS PIANO)
+   ------------------------------------------------------------- */
+.memory-synth-deck {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    background: #120e0b;
+    border: 2px solid var(--border-brass);
+    border-radius: 14px;
+    padding: 18px 14px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.7), inset 0 0 15px rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.memory-turn-banner {
+    width: 100%;
+    max-width: 440px;
+    background: rgba(232, 170, 66, 0.12);
+    border: 1px solid var(--border-brass);
+    color: var(--paper-cream);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.memory-turn-banner.banner-alert {
+    background: rgba(194, 89, 63, 0.25);
+    border-color: var(--wax-red);
+    color: #ffd8cc;
+}
+
+.synth-pads-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+}
+
+.synth-note-btn {
+    height: 90px;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.6);
+    user-select: none;
+}
+
+.synth-note-btn .note-tone {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.synth-note-btn .note-freq {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    opacity: 0.85;
+}
+
+/* Note pad colors */
+.synth-note-btn.note-c {
+    background: linear-gradient(135deg, #a83232, #6b1b1b);
+    border-color: #d15656;
+    color: #ffe6e6;
+}
+.synth-note-btn.note-d {
+    background: linear-gradient(135deg, #c77726, #804811);
+    border-color: #e6963c;
+    color: #fff2e0;
+}
+.synth-note-btn.note-e {
+    background: linear-gradient(135deg, #bfa128, #7a6612);
+    border-color: #dbc03f;
+    color: #fffde6;
+}
+.synth-note-btn.note-f {
+    background: linear-gradient(135deg, #2b8257, #13472d);
+    border-color: #48aa79;
+    color: #e6ffef;
+}
+.synth-note-btn.note-g {
+    background: linear-gradient(135deg, #28639e, #133961);
+    border-color: #488ecc;
+    color: #e6f3ff;
+}
+.synth-note-btn.note-a {
+    background: linear-gradient(135deg, #6c3da6, #41206b);
+    border-color: #925fcf;
+    color: #f6edff;
+}
+
+.synth-note-btn:hover {
+    transform: translateY(-3px) scale(1.03);
+    filter: brightness(1.2);
+}
+
+.synth-note-btn:active, .synth-note-btn.pad-active {
+    transform: translateY(0) scale(0.96);
+    filter: brightness(1.75);
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.85);
+}
+
+/* -------------------------------------------------------------
+   3. FLAPPY MELODY CANVAS
+   ------------------------------------------------------------- */
+.flappy-canvas-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    background: #0e0b09;
+    border: 2px solid var(--border-brass);
+    border-radius: 14px;
+    padding: 10px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.7), inset 0 0 15px rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+}
+
+#flappy-canvas {
+    width: 100%;
+    max-width: 480px;
+    height: auto;
+    aspect-ratio: 480 / 340;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    touch-action: none;
+    display: block;
+}
+
+/* -------------------------------------------------------------
+   4. MODAL TRÒ CHƠI BÍ MẬT: BÔNG HOA ĐẸP NHẤT
+   ------------------------------------------------------------- */
+.vintage-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(10, 7, 5, 0.85);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 14px;
+    overflow-y: auto;
+    animation: fadeInStage 0.3s ease-out;
+}
+
+.vintage-modal-card {
+    position: relative;
+    width: 100%;
+    max-width: 680px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: linear-gradient(160deg, #1c1510, #100c09);
+    border: 2px solid var(--vintage-gold);
+    border-radius: 18px;
+    padding: 30px 20px;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.9), 0 0 40px rgba(232, 170, 66, 0.25);
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 36px;
+    height: 36px;
+    background: rgba(30, 22, 17, 0.8);
+    border: 1px solid var(--border-brass);
+    color: var(--paper-cream);
+    border-radius: 50%;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+    background: var(--wax-red);
+    color: #ffffff;
+    border-color: #ff6b6b;
+    transform: rotate(90deg) scale(1.1);
 }
 
 .flower-badge {

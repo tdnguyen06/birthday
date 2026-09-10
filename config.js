@@ -9,7 +9,7 @@ const CONFIG = {
     titleWeb: "Mixtape 2006 • Happy Birthday Bìm 🎞️",
     loverName: "bìm", // Tên để mở khóa nếu gõ chữ
     birthdayDate: "10.09.2006",
-    
+
     // Các mật khẩu hợp lệ để mở khóa cuộn băng (hỗ trợ cả ngày sinh, chữ thường...)
     passwords: ["100906", "10092006", "1009", "bìm", "bim"],
 
@@ -87,25 +87,46 @@ const CONFIG = {
     ],
 
     // -------------------------------------------------------------
-    // 4. MÀN 3 - THỬ THÁCH 1: GAME HỨNG QUÀ SINH NHẬT (CANVAS CATCHER)
+    // 4. MÀN 3 - THỬ THÁCH 1: PIANO TILES (BẤM NỐT RƠI)
     // -------------------------------------------------------------
-    catcherGame: {
+    pianoGame: {
         badge: "THỬ THÁCH 1 / 3",
-        title: "Hứng Quà Sinh Nhật 🎁",
-        subtitle: "Di chuyển chuột hoặc vuốt ngón tay để hứng đủ 10 món quà kỷ niệm nhé!",
-        targetScore: 10,
-        scoreLabel: "ĐIỂM SỐ:"
+        title: "Piano Tiles Hoài Niệm 🎹",
+        subtitle: "Bấm vào các nốt nhạc piano rơi xuống theo nhịp điệu. Bấm trượt hoặc để rơi quá 5 lần sẽ thua nhé!",
+        targetScore: 20,
+        maxMisses: 5
     },
 
     // -------------------------------------------------------------
-    // 5. MÀN 3 - THỬ THÁCH 2: TÌM BÔNG HOA ĐẸP NHẤT
+    // 5. MÀN 3 - THỬ THÁCH 2: GHI NHỚ NỐT NHẠC (SIMON MEMORY PIANO)
+    // -------------------------------------------------------------
+    memoryGame: {
+        badge: "THỬ THÁCH 2 / 3",
+        title: "Thử Thách Nhớ Nốt Nhạc 🎵",
+        subtitle: "Lắng nghe giai điệu và lặp lại chính xác từng nốt. Vòng 1 (6 nốt) • Vòng 2 (8 nốt) • Vòng 3 (10 nốt). Nhớ sai 3 lần sẽ bị loại!",
+        rounds: [6, 8, 10],
+        maxErrors: 3
+    },
+
+    // -------------------------------------------------------------
+    // 6. MÀN 3 - THỬ THÁCH 3: FLAPPY MELODY (CHƠI NHƯ FLAPPY BIRDS)
+    // -------------------------------------------------------------
+    flappyGame: {
+        badge: "THỬ THÁCH 3 / 3",
+        title: "Flappy Melody 🕊️",
+        subtitle: "Chạm màn hình, click chuột hoặc ấn phím Space để bay qua 10 cột chướng ngại vật mở khóa bức thư!",
+        targetScore: 10
+    },
+
+    // -------------------------------------------------------------
+    // 7. TRÒ CHƠI BÍ MẬT (KHI ẤN NGÔI SAO DƯỚI GÓC TRÁI): HOA ĐẸP NHẤT
     // -------------------------------------------------------------
     flowerGame: {
-        badge: "THỬ THÁCH 2 / 3",
-        title: "Tìm Bông Hoa Đẹp Nhất",
+        badge: "TRÒ CHƠI BÍ MẬT ⭐",
+        title: "Đoán Bông Hoa Đẹp Nhất 🌸",
         subTitle: "Trong các loài hoa dưới đây, theo bạn bông hoa nào là đẹp nhất?",
         attemptsLabel: "LƯỢT CHỌN:",
-        selectTag: "CHỌN",
+        selectTag: "CHỌN BÔNG NÀY",
 
         // Danh sách 12 loài hoa
         flowers: [
@@ -125,16 +146,16 @@ const CONFIG = {
 
         // 3 câu phản hồi khi người dùng bấm chọn 3 lần đầu
         failMessages: [
-            "Hoa này rất đẹp, nhưng vẫn chưa phải đáp án chính xác đâu nha. Thử lại xem sao.",
-            "Vẫn chưa chính xác nè. Bông hoa đẹp nhất không nằm trong số này đâu. Bạn chọn tiếp thử đi.",
+            "Hoa này rất đẹp, nhưng vẫn chưa phải đáp án chính xác đâu nha. Thử chọn lại xem sao!",
+            "Vẫn chưa chính xác nè. Bông hoa đẹp nhất không nằm trong số này đâu. Bạn chọn tiếp thử đi!",
             "Vẫn chưa đúng rồi. Thật ra không có loài hoa tự nhiên nào ở đây là đẹp nhất cả..."
         ],
 
         // Màn Bật Mí Sau 3 Lần Chọn Kèm Album 8 Ảnh (anh11 -> anh18)
         conclusion: {
-            badge: "BẬT MÍ BÍ MẬT",
+            badge: "BẬT MÍ BÍ MẬT 💖",
             title: "THẬT RA TRẦN THỊ THANH BÌNH LÀ BÔNG HOA ĐẸP NHẤT",
-            subtitle: "Mỗi loài hoa có một vẻ đẹp riêng, nhưng với mình, bạn luôn là điều đặc biệt nhất.",
+            subtitle: "Mỗi loài hoa có một vẻ đẹp riêng, nhưng với mình, bạn luôn là điều tuyệt vời nhất.",
             message: "Hoa đẹp đến đâu rồi cũng có lúc tàn, nhưng nét duyên dáng, sự chân thành và nụ cười rạng rỡ của bạn luôn để lại ấn tượng đẹp nhất. Chúc bạn luôn tự tin, tỏa sáng và hạnh phúc theo cách của riêng mình nhé.",
             photoCounterLabel: "BỨC ẢNH",
             images: [
@@ -147,15 +168,15 @@ const CONFIG = {
                 "images/anh17.png",
                 "images/anh18.png"
             ],
-            btnText: "TIẾP TỤC ĐẾN PHẦN THỔI NẾN"
+            btnText: "ĐÓNG LỜI NHẮN BÍ MẬT"
         }
     },
 
     // -------------------------------------------------------------
-    // 5. MÀN 3 - GIAI ĐOẠN 2: BÁNH KEM & THỔI NẾN ƯỚC NGUYỆN
+    // 8. MÀN BÁNH KEM & THỔI NẾN ƯỚC NGUYỆN (SAU KHI THẮNG GAME 3)
     // -------------------------------------------------------------
     cakeGame: {
-        badge: "ƯỚC NGUYỆN TUỔI MỚI",
+        badge: "ƯỚC NGUYỆN TUỔI MỚI 🎂",
         title: "Thổi Nến Sinh Nhật",
         hint: "Nhắm mắt ước một điều ước cho tuổi mới, sau đó chạm vào ngọn nến để thổi tắt nhé.",
         blowHint: "Chạm vào ngọn nến để thổi tắt và mở khóa Bức Thư",
@@ -172,9 +193,9 @@ const CONFIG = {
         greeting: "Gửi Bìm,",
         paragraphs: [
             "Hôm nay là sinh nhật của mày rồi.",
-            "Thật sự là không thể ngờ rằng, người ngồi cạnh tao ngày hôm ấy lại trở thành người yêu tao, và cùng tao đi tới tận gần 3 năm rồi.",
-            "Trong thời gian đó, tao biết mày cũng đã bao lần rơi nước mắt, bao lần đau khổ, rất cảm ơn vì mày vẫn còn ở lại bên tao.",
-            "Chúc tuổi mới siêu cấp xinh đẹp, mạnh khỏe, hạnh phúc, không giận người yêu nhiều như tuổi 1x nhé!",
+            "Thật sự là không thể ngờ rằng, người ngồi cạnh t ngày hôm ấy lại trở thành người yêu t, và cùng t đi tới tận gần 3 năm rồi.",
+            "Trong thời gian đó, t biết m đã bao lần khổ tâm vì sự vô ý của t, nhưng m vẫn còn ở lại bên t.",
+            "Chúc tuổi mới siêu cấp xinh đẹp, mạnh khỏe, hạnh phúc, pass mọi chứng chỉ và công ty mình apply, và nhớ không giận người yêu nhiều như tuổi 1x nhé!",
             "Và đừng quên chúng ta có hẹn đi chơi vào tối thứ 7 nhaaaaaaa!",
             "Chúc mừng sinh nhật người đẹp nhất trần gian"
         ],

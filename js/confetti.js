@@ -19,6 +19,11 @@ class FireworksController {
         this.height = this.canvas.height = window.innerHeight;
     }
 
+    // Pháo hoa đơn lẻ
+    launchFirework(x = null, y = null) {
+        this.burstConfetti(x, y, 60);
+    }
+
     // Bắn hạt pháo kim tuyến màu vàng kim / hổ phách / đồng vintage
     burstConfetti(originX = null, originY = null, count = 75) {
         const x = originX !== null ? originX : this.width / 2;
